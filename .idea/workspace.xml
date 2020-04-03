@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d53776ac-5d1c-47e4-81d9-8f9b20a673b5" name="Default Changelist" comment="" />
+    <list default="true" id="d53776ac-5d1c-47e4-81d9-8f9b20a673b5" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AlphaZero.iml" beforeDir="false" afterPath="$PROJECT_DIR$/AlphaZero.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game_ui.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/game_ui.py" afterDir="false" />
+    </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -14,41 +19,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/AlphaZero_Gomoku_MPI/game_board.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6192">
-              <caret line="346" column="36" selection-start-line="346" selection-start-column="16" selection-end-line="346" selection-end-column="36" />
-              <folding>
-                <element signature="e#89#107#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/game_ui.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6786">
-              <caret line="377" column="75" selection-start-line="377" selection-start-column="75" selection-end-line="377" selection-end-column="75" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/.gitignore">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="522">
-              <caret line="29" selection-start-line="29" selection-end-line="29" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/AlphaZero_Gomoku_MPI/human_play_MPI.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="396">
-              <caret line="22" column="11" selection-start-line="22" selection-start-column="5" selection-end-line="22" selection-end-column="15" />
+            <state relative-caret-position="655">
+              <caret line="402" lean-forward="true" selection-start-line="402" selection-end-line="402" />
             </state>
           </provider>
         </entry>
@@ -73,6 +48,16 @@
       <find>Board</find>
       <find>GUI</find>
       <find>render</find>
+      <find>Rest</find>
+      <find>Restart</find>
+      <find>Restart'</find>
+      <find>RestartGame</find>
+      <find>_draw_button</find>
+      <find>areas</find>
+      <find>reset_score</find>
+      <find>_draw_static</find>
+      <find>start_play_with_UI</find>
+      <find>alpha_zero_player</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -91,9 +76,9 @@
         <option value="$PROJECT_DIR$/src/1235r4.py" />
         <option value="$PROJECT_DIR$/src/12.py" />
         <option value="$PROJECT_DIR$/AlphaZero_Gomoku_MPI/GUI_v1_4.py" />
+        <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/AlphaZero_Gomoku_MPI/game_board.py" />
         <option value="$PROJECT_DIR$/src/game_ui.py" />
-        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -111,7 +96,6 @@
     </navigator>
     <panes>
       <pane id="Scope" />
-      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -122,21 +106,27 @@
             <path>
               <item name="AlphaZero" type="b2602c69:ProjectViewProjectNode" />
               <item name="AlphaZero" type="462c0819:PsiDirectoryNode" />
-              <item name=".idea" type="462c0819:PsiDirectoryNode" />
+              <item name="AlphaZero_Gomoku_MPI" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="AlphaZero" type="b2602c69:ProjectViewProjectNode" />
+              <item name="AlphaZero" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="project.structure.last.edited" value="SDKs" />
+    <property name="project.structure.last.edited" value="Global Libraries" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="Errors" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -181,9 +171,6 @@
       <module name="AlphaZero" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -223,8 +210,9 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1680" height="982" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.13675214" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.21306472" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Project Explorer" order="2" />
       <window_info id="DB Browser" order="3" />
@@ -232,15 +220,15 @@
       <window_info id="Job Explorer" order="5" />
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.3298731" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.15455595" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.49019608" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Console" order="7" />
       <window_info anchor="bottom" id="DB Execution Console" order="8" />
-      <window_info anchor="bottom" id="Terminal" order="9" />
+      <window_info anchor="bottom" id="Terminal" order="9" weight="0.3298731" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="11" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -248,7 +236,7 @@
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Maven" order="3" />
       <window_info anchor="right" id="Palette&#9;" order="4" />
-      <window_info anchor="right" x="707" y="80" width="266" height="867" id="Documentation" order="5" side_tool="true" visible="true" weight="0.1947497" />
+      <window_info anchor="right" x="707" y="80" width="266" height="867" id="Documentation" order="5" side_tool="true" weight="0.1947497" />
     </layout>
     <layout-to-restore>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.13186814" />
@@ -281,6 +269,7 @@
   <component name="VcsManagerConfiguration">
     <ignored-roots>
       <path value="$PROJECT_DIR$/gomoku" />
+      <path value="$PROJECT_DIR$/AlphaZero_Gomoku_MPI" />
     </ignored-roots>
   </component>
   <component name="editorHistoryManager">
@@ -313,9 +302,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Gomoku_MPI/mcts_alphaZero.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/.idea/game_ui.py" />
     <entry file="file://$PROJECT_DIR$/game_ui.py" />
     <entry file="file://$PROJECT_DIR$/te.py" />
@@ -323,13 +309,10 @@
     <entry file="file://$PROJECT_DIR$/src/123.py" />
     <entry file="file://$PROJECT_DIR$/src/1235r4.py" />
     <entry file="file://$PROJECT_DIR$/src/12.py" />
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Gomoku_MPI/GUI_v1_4.py">
+    <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="324">
-          <caret line="18" selection-start-line="18" selection-end-line="362" />
-          <folding>
-            <element signature="e#440#453#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="522">
+          <caret line="29" selection-start-line="29" selection-end-line="29" />
         </state>
       </provider>
     </entry>
@@ -340,17 +323,44 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/AlphaZero_Gomoku_MPI/GUI_v1_4.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="214">
+          <caret line="162" column="32" selection-start-line="162" selection-start-column="32" selection-end-line="162" selection-end-column="54" />
+          <folding>
+            <element signature="e#440#453#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AlphaZero_Gomoku_MPI/human_play_MPI.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="262">
+          <caret line="222" column="22" selection-start-line="222" selection-start-column="4" selection-end-line="222" selection-end-column="22" />
+          <folding>
+            <element signature="e#918#946#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AlphaZero_Gomoku_MPI/mcts_alphaZero.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="290">
+          <caret line="267" column="23" selection-start-line="267" selection-start-column="23" selection-end-line="267" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/AlphaZero_Gomoku_MPI/human_play.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="486">
-          <caret line="35" column="30" lean-forward="true" selection-start-line="35" selection-start-column="30" selection-end-line="35" selection-end-column="30" />
+        <state relative-caret-position="362">
+          <caret line="66" column="28" lean-forward="true" selection-start-line="66" selection-start-column="28" selection-end-line="66" selection-end-column="28" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/AlphaZero_Gomoku_MPI/game_board.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6192">
-          <caret line="346" column="36" selection-start-line="346" selection-start-column="16" selection-end-line="346" selection-end-column="36" />
+        <state relative-caret-position="549">
+          <caret line="308" lean-forward="true" selection-start-line="308" selection-end-line="308" />
           <folding>
             <element signature="e#89#107#0" expanded="true" />
           </folding>
@@ -359,22 +369,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/game_ui.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6786">
-          <caret line="377" column="75" selection-start-line="377" selection-start-column="75" selection-end-line="377" selection-end-column="75" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Gomoku_MPI/human_play_MPI.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="22" column="11" selection-start-line="22" selection-start-column="5" selection-end-line="22" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="522">
-          <caret line="29" selection-start-line="29" selection-end-line="29" />
+        <state relative-caret-position="655">
+          <caret line="402" lean-forward="true" selection-start-line="402" selection-end-line="402" />
         </state>
       </provider>
     </entry>
@@ -407,7 +403,7 @@
       </state>
       <state key="GlobalLibrariesConfigurable.UI">
         <settings>
-          <last-edited>Python 3.7 interpreter library</last-edited>
+          <last-edited>Python 3.7 (AlphaZero) interpreter library</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>

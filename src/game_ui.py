@@ -8,9 +8,11 @@ Created on 2020-04-02
 
 # adapted from https://github.com/initial-h/AlphaZero_Gomoku_MPI/blob/master/GUI_v1_4.py
 
-from easygui import buttonbox
-# import pygame
-# from pygame.locals import *
+
+from itertools import product
+import numpy as np
+import pygame
+from pygame.locals import *
 
 
 class UI(object):
@@ -35,7 +37,7 @@ class UI(object):
         self.reset(board_size)
 
         # restart_game() must be called before reset_score() because restart_game() will add value to self.round_counter
-        self.restart_game(False)
+        self.restart_game()
         self.reset_score()
 
     def reset(self, bs):
@@ -56,26 +58,33 @@ class UI(object):
         pygame.display.set_caption('AlphaZero_Gomoku')
 
         # button areas
-        self.areas['SwitchPlayer'] = Rect(self.ScreenSize[0]/2 - self.UnitSize*1.5, self.ScreenSize[1] - self.UnitSize,
-                                          self.UnitSize*3, self.UnitSize)
+        self.areas['ResetScore'] = Rect(0, self.ScreenSize[1] - self.UnitSize,
+                                        self.UnitSize*2.5, self.UnitSize)
 
-        self.areas['RestartGame'] = Rect(self.ScreenSize[0] - self.UnitSize*3, self.ScreenSize[1] - self.UnitSize,
-                                         self.UnitSize*3, self.UnitSize)
+        self.areas['Restart'] = Rect(self.UnitSize*2.6, self.ScreenSize[1] - self.UnitSize,
+                                     self.UnitSize*2.5, self.UnitSize)
 
-        self.areas['ResetScore'] = Rect(0, self.ScreenSize[1] - self.UnitSize, self.UnitSize*2.5, self.UnitSize)
+        self.areas['Man vs Man'] = Rect(self.UnitSize*5.2, self.ScreenSize[1] - self.UnitSize,
+                                        self.UnitSize*2.6, self.UnitSize)
+
+        self.areas['Man vs AI'] = Rect(self.UnitSize*7.9, self.ScreenSize[1] - self.UnitSize,
+                                       self.UnitSize*2.5, self.UnitSize)
+
+        self.areas['AI vs AI'] = Rect(self.UnitSize*10.5, self.ScreenSize[1] - self.UnitSize,
+                                      self.UnitSize*2.5, self.UnitSize)
 
         board_lenth = self.UnitSize * self.BoardSize
         self.areas['board'] = Rect(self.UnitSize, self.UnitSize, board_lenth, board_lenth)
 
-    def restart_game(self, button_down=True):
+    def restart_game(self, highlight_button=None):
         """
         restart for a new round
-        :param button_down: whether the RestartGame button is pressed, used to highlight button.
         """
         self.round_counter += 1
         self._draw_static()
-        if button_down:
-            self._draw_button('RestartGame', 1)
+        if highlight_button is not None:
+            self._draw_button(highlight_button, 2, True)
+
         self.state = {}
         self.last_action_player = None
         pygame.display.update()
@@ -160,45 +169,14 @@ class UI(object):
                     for name, rec in self.areas.items():
                         if self._in_area(mouse_pos, rec):
                             if name != 'board':
-                                self._draw_button(name, 2, True)
-                                pygame.time.delay(100)
-                                self._draw_button(name, 1, True)
                                 return name,
+
                             else:
                                 x = (mouse_pos[0] - self.UnitSize)//self.UnitSize
                                 y = self.BoardSize - (mouse_pos[1] - self.UnitSize)//self.UnitSize - 1
                                 move = self.loc_2_move((x, y))
                                 if move not in self.state:
                                     return 'move', move
-
-            if event.type == MOUSEMOTION:       # check mouse move event to highlight buttons
-                mouse_pos = event.pos
-                for name, rec in self.areas.items():
-                    if name != 'board':
-                        if self._in_area(mouse_pos, rec):
-                            self._draw_button(name, 1, True)
-                        else:
-                            self._draw_button(name, update=True)
-
-    def deal_with_input(self, inp, player):
-        """
-        This is just a example to deal with inputs
-        :param inp: inputs from get_input()
-        :param player: the name of the player
-        """
-        if inp[0] == 'RestartGame':
-            self.restart_game()
-        elif inp[0] == 'ResetScore':
-            self.reset_score()
-        elif inp[0] == 'quit':
-            exit()
-        elif inp[0] == 'move':
-            self.render_step(inp[1], player)
-        elif inp[0] == 'SwitchPlayer':
-            # restart_game() must be called before reset_score(). The reason is mentioned above.
-            ui.restart_game(False)
-            ui.reset_score()
-            # code for switch is needed
 
     def show_messages(self, messages=None):
         """
@@ -344,36 +322,84 @@ class UI(object):
         return True if area[0] < loc[0] < area[0] + area[2] and area[1] < loc[1] < area[1] + area[3] else False
 
 
-def man_against_man():
+states = list(product(range(11), range(11)))
+def get_ai_action():
+    idx = np.random.choice(range(len(states)))
+    action = states[idx]
+    states.pop(idx)
+    return action
+
+
+def process_one_move(mode, click, player_id, ui, ai_first):
+    if mode == 'Man vs Man':
+        action = click[1]
+        ui.render_step(action, player_id)
+
+    elif mode == 'AI vs AI':
+        action = get_ai_action()
+        ui.render_step(action, player_id)
+
+    elif mode == 'Man vs AI':
+        if ai_first:
+            if player_id == 1:
+                action = get_ai_action()
+                ui.render_step(action, player_id)
+            else:
+                action = click[1]
+                ui.render_step(action, player_id)
+
+        else:
+            if player_id == 1:
+                action = click[1]
+                ui.render_step(action, player_id)
+            else:
+                action = get_ai_action()
+                ui.render_step(action, player_id)
+
+    else:
+        raise ValueError("Unknown mode!!!")
+
+
+def main():
 
     ui = UI()
-    i = 1
-    ui.add_score(1)
+    player_id = 1
+    ai_first = False
+    mode = 'Man vs Man'
     while True:
-        if i == 1:
+        if player_id == 1:
             ui.show_messages("First player's turn")
         else:
             ui.show_messages("Second player's turn")
-        inp = ui.get_input()
-        print(inp)
-        ui.deal_with_input(inp, i)
-        if inp[0] == 'move':
-            i %= 2
-            i += 1
-        elif inp[0] == 'RestartGame':
-            i = 1
-        elif inp[0] == 'SwitchPlayer':
-            i = 1
 
+        if mode == 'AI vs AI' or ((mode == 'Man vs AI')
+                                  and ((ai_first and player_id == 1)
+                                       or (not ai_first and player_id == 2))):
+            click = 'move',
+        else:
+            click = ui.get_input()
 
-def man_against_ai():
-    pass
+        if click[0] == 'quit':
+            exit()
+        elif click[0] == 'Restart':
+            ui.restart_game()
+        elif click[0] == 'ResetScore':
+            ui.reset_score()
 
+        elif click[0] in ('Man vs Man', 'Man vs AI', 'AI vs AI'):
+            player_id = 1
+            ui.restart_game(click[0])
+            ui.reset_score()
+            mode = click[0]
 
-def ai_against_ai():
-    pass
+        elif click[0] == 'move':
+            process_one_move(mode, click, player_id, ui, ai_first)
+            player_id %= 2
+            player_id += 1
+
+        else:
+            raise ValueError('Unknown inputs!!!')
 
 
 if __name__ == '__main__':
-    buttonbox(msg='', title=' ', choices=['Button1', 'Button2', 'Button3'])
-    # man_against_man()
+    main()
