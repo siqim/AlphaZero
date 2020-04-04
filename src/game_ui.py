@@ -15,7 +15,7 @@ import pygame
 from pygame.locals import *
 
 
-class UI(object):
+class GUI(object):
 
     def __init__(self, board_size=11):
         pygame.init()
@@ -173,7 +173,7 @@ class UI(object):
 
                             else:
                                 x = (mouse_pos[0] - self.UnitSize)//self.UnitSize
-                                y = self.BoardSize - (mouse_pos[1] - self.UnitSize)//self.UnitSize - 1
+                                y = (mouse_pos[1] - self.UnitSize)//self.UnitSize
                                 move = self.loc_2_move((x, y))
                                 if move not in self.state:
                                     return 'move', move
@@ -224,7 +224,7 @@ class UI(object):
         else:
             x, y = loc
         pos = int(self.UnitSize * 1.5 + x * self.UnitSize), \
-            int(self.UnitSize * 1.5 + (self.BoardSize - y - 1) * self.UnitSize)
+            int(self.UnitSize * 1.5 + y * self.UnitSize)
         if player == 1:
             c = (0, 0, 0)
         elif player == 2:
@@ -264,7 +264,7 @@ class UI(object):
                              (board_lenth + self.UnitSize*0.5, start + self.UnitSize))
             pygame.draw.rect(self.screen, (0, 0, 0), (self.UnitSize, self.UnitSize, board_lenth, board_lenth), 1)
             # coordinate values
-            self._draw_text(self.BoardSize - i - 1, (self.UnitSize / 2, start + self.UnitSize),
+            self._draw_text(i, (self.UnitSize / 2, start + self.UnitSize),
                             text_height=self.TextSize)  # vertical
             self._draw_text(i, (start + self.UnitSize, self.UnitSize / 2), text_height=self.TextSize)  # horizontal
 
@@ -359,10 +359,12 @@ def process_one_move(mode, click, player_id, ui, ai_first):
     else:
         raise ValueError("Unknown mode!!!")
 
+    print(action)
+
 
 def main():
 
-    ui = UI()
+    ui = GUI()
     player_id = 1
     ai_first = False
     mode = 'Man vs Man'
@@ -385,7 +387,6 @@ def main():
             ui.restart_game()
         elif click[0] == 'ResetScore':
             ui.reset_score()
-
         elif click[0] in ('Man vs Man', 'Man vs AI', 'AI vs AI'):
             player_id = 1
             ui.restart_game(click[0])
