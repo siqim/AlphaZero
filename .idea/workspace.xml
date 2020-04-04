@@ -2,10 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d53776ac-5d1c-47e4-81d9-8f9b20a673b5" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dictionaries/msq96.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AlphaZero.iml" beforeDir="false" afterPath="$PROJECT_DIR$/AlphaZero.iml" afterDir="false" />
     </list>
-    <ignored path="$PROJECT_DIR$/out/" />
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -13,31 +14,6 @@
   </component>
   <component name="DefaultGradleProjectSettings">
     <option name="isMigrated" value="true" />
-  </component>
-  <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/game_ui.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="655">
-              <caret line="402" lean-forward="true" selection-start-line="402" selection-end-line="402" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/README.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor relative-caret-position="18">
-                <caret line="1" column="66" selection-start-line="1" selection-start-column="66" selection-end-line="1" selection-end-column="66" />
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -72,89 +48,27 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="IdeDocumentHistory">
-    <option name="CHANGED_PATHS">
-      <list>
-        <option value="$PROJECT_DIR$/gomoku/gomoku.py" />
-        <option value="$PROJECT_DIR$/gomoku/sources/__init__.py" />
-        <option value="$PROJECT_DIR$/.idea/game_ui.py" />
-        <option value="$PROJECT_DIR$/game_ui.py" />
-        <option value="$PROJECT_DIR$/te.py" />
-        <option value="$PROJECT_DIR$/src/123.py" />
-        <option value="$PROJECT_DIR$/123.py" />
-        <option value="$PROJECT_DIR$/src/1235r4.py" />
-        <option value="$PROJECT_DIR$/src/12.py" />
-        <option value="$PROJECT_DIR$/AlphaZero_Gomoku_MPI/GUI_v1_4.py" />
-        <option value="$PROJECT_DIR$/.gitignore" />
-        <option value="$PROJECT_DIR$/AlphaZero_Gomoku_MPI/game_board.py" />
-        <option value="$PROJECT_DIR$/src/game_ui.py" />
-        <option value="$PROJECT_DIR$/requirements" />
-        <option value="$PROJECT_DIR$/README.md" />
-      </list>
-    </option>
-  </component>
-  <component name="ProjectFrameBounds">
-    <option name="y" value="23" />
-    <option name="width" value="1680" />
-    <option name="height" value="982" />
-  </component>
+  <component name="ProjectId" id="1a2ZMSEAXxhzwlWtLnMmRbqv2ZG" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
-  <component name="ProjectView">
-    <navigator proportions="" version="1">
-      <foldersAlwaysOnTop value="true" />
-    </navigator>
-    <panes>
-      <pane id="Scope" />
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="AlphaZero" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AlphaZero" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="AlphaZero" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AlphaZero" type="462c0819:PsiDirectoryNode" />
-              <item name="AlphaZero_Gomoku_MPI" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="AlphaZero" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AlphaZero" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-      <pane id="PackagesPane" />
-    </panes>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="project.structure.last.edited" value="Global Libraries" />
+    <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/gomoku" />
     </key>
-  </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
   </component>
   <component name="RunManager" selected="Python.game_ui">
     <configuration name="GUI_v1_4" type="PythonConfigurationType" factoryName="Python" temporary="true">
@@ -178,7 +92,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="game_ui" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="game_ui" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="AlphaZero" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -219,63 +133,18 @@
     </task>
     <servers />
   </component>
-  <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1680" height="982" extended-state="0" />
-    <editor active="true" />
-    <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.21306472" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info id="Project Explorer" order="2" />
-      <window_info id="DB Browser" order="3" />
-      <window_info id="Designer" order="4" />
-      <window_info id="Job Explorer" order="5" />
-      <window_info id="Favorites" order="6" side_tool="true" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.15455595" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.49019608" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Console" order="7" />
-      <window_info anchor="bottom" id="DB Execution Console" order="8" />
-      <window_info anchor="bottom" id="Terminal" order="9" weight="0.3298731" />
-      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="bottom" id="Version Control" order="11" />
-      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Maven" order="3" />
-      <window_info anchor="right" id="Palette&#9;" order="4" />
-      <window_info anchor="right" x="707" y="80" width="266" height="867" id="Documentation" order="5" side_tool="true" weight="0.1947497" />
-    </layout>
-    <layout-to-restore>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.13186814" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info id="Project Explorer" order="2" />
-      <window_info id="DB Browser" order="3" />
-      <window_info id="Designer" order="4" />
-      <window_info id="Job Explorer" order="5" />
-      <window_info id="Favorites" order="6" side_tool="true" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.3298731" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Console" order="7" />
-      <window_info anchor="bottom" id="DB Execution Console" order="8" />
-      <window_info anchor="bottom" id="Terminal" order="9" />
-      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="bottom" id="Version Control" order="11" />
-      <window_info anchor="right" auto_hide="true" x="707" y="80" width="266" height="867" id="Documentation" order="0" side_tool="true" weight="0.1947497" />
-      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="1" type="SLIDING" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="2" weight="0.25" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="3" weight="0.25" />
-      <window_info anchor="right" id="Maven" order="4" />
-      <window_info anchor="right" id="Palette&#9;" order="5" />
-    </layout-to-restore>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <ignored-roots>
@@ -283,223 +152,18 @@
       <path value="$PROJECT_DIR$/AlphaZero_Gomoku_MPI" />
     </ignored-roots>
   </component>
-  <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/gomoku/sources/pics/board.png" />
-    <entry file="file://$PROJECT_DIR$/gomoku/sources/pics/catsmall.png" />
-    <entry file="file://$PROJECT_DIR$/gomoku/sources/pics/cp_k_17.png" />
-    <entry file="file://$PROJECT_DIR$/gomoku/sources/pics/cp_k_27.png" />
-    <entry file="file://$PROJECT_DIR$/gomoku/sources/pics/cp_k_33.png" />
-    <entry file="file://$PROJECT_DIR$/gomoku/sources/pics/cp_k_39.png" />
-    <entry file="file://$PROJECT_DIR$/gomoku/sources/pics/cp_w_21.png" />
-    <entry file="file://$PROJECT_DIR$/gomoku/sources/pics/cp_w_31.png" />
-    <entry file="file://$PROJECT_DIR$/gomoku/sources/pics/cp_w_35.png" />
-    <entry file="file://$PROJECT_DIR$/gomoku/sources/pics/cp_k_21.png" />
-    <entry file="file://$PROJECT_DIR$/gomoku/.gitignore" />
-    <entry file="file://$PROJECT_DIR$/gomoku/gomoku.png" />
-    <entry file="file://$PROJECT_DIR$/gomoku/__init__.py" />
-    <entry file="file://$PROJECT_DIR$/gomoku/skywindAI.py" />
-    <entry file="file://$PROJECT_DIR$/gomoku/gomoku.py" />
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Gomoku_MPI/demo/algorithm.png">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Gomoku_MPI/demo/demo.gif">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Gomoku_MPI/model_15_15_5/readme.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor />
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/.idea/game_ui.py" />
-    <entry file="file://$PROJECT_DIR$/game_ui.py" />
-    <entry file="file://$PROJECT_DIR$/te.py" />
-    <entry file="file://$PROJECT_DIR$/123.py" />
-    <entry file="file://$PROJECT_DIR$/src/123.py" />
-    <entry file="file://$PROJECT_DIR$/src/1235r4.py" />
-    <entry file="file://$PROJECT_DIR$/src/12.py" />
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="522">
-          <caret line="29" selection-start-line="29" selection-end-line="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../Library/Caches/IdeaIC2019.1/python_stubs/1614873166/pygame/rect.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="10" column="6" selection-start-line="10" selection-start-column="6" selection-end-line="10" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Gomoku_MPI/GUI_v1_4.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="214">
-          <caret line="162" column="32" selection-start-line="162" selection-start-column="32" selection-end-line="162" selection-end-column="54" />
-          <folding>
-            <element signature="e#440#453#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Gomoku_MPI/human_play_MPI.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="262">
-          <caret line="222" column="22" selection-start-line="222" selection-start-column="4" selection-end-line="222" selection-end-column="22" />
-          <folding>
-            <element signature="e#918#946#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Gomoku_MPI/mcts_alphaZero.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="290">
-          <caret line="267" column="23" selection-start-line="267" selection-start-column="23" selection-end-line="267" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Gomoku_MPI/human_play.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="362">
-          <caret line="66" column="28" lean-forward="true" selection-start-line="66" selection-start-column="28" selection-end-line="66" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Gomoku_MPI/game_board.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="549">
-          <caret line="308" lean-forward="true" selection-start-line="308" selection-end-line="308" />
-          <folding>
-            <element signature="e#89#107#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/game_ui.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="655">
-          <caret line="402" lean-forward="true" selection-start-line="402" selection-end-line="402" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/requirements">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="13" selection-start-column="13" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="18">
-            <caret line="1" column="66" selection-start-line="1" selection-start-column="66" selection-end-line="1" selection-end-column="66" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-  </component>
-  <component name="masterDetails">
-    <states>
-      <state key="ArtifactsStructureConfigurable.UI">
-        <settings>
-          <artifact-editor />
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="FacetStructureConfigurable.UI">
-        <settings>
-          <last-edited>Python</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="GlobalLibrariesConfigurable.UI">
-        <settings>
-          <last-edited>Python 3.7 (AlphaZero) interpreter library</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="JdkListConfigurable.UI">
-        <settings>
-          <last-edited>Python 3.7 (AlphaZero)</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="ModuleStructureConfigurable.UI">
-        <settings>
-          <last-edited>AlphaZero</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-                <option value="0.6" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="ProjectJDKs.UI">
-        <settings>
-          <last-edited>1.8</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="ProjectLibrariesConfigurable.UI">
-        <settings>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="ScopeChooserConfigurable.UI">
-        <settings>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-    </states>
+  <component name="WindowStateProjectService">
+    <state x="542" y="485" width="587" height="744" key="FileChooserDialogImpl" timestamp="1585936422971">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="542" y="485" width="587" height="744" key="FileChooserDialogImpl/0.0.2560.1400@0.0.2560.1400" timestamp="1585936422971" />
+    <state x="778" y="282" width="1275" height="900" key="SettingsEditor" timestamp="1585983720208">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="778" y="282" width="1275" height="900" key="SettingsEditor/0.0.2560.1400@0.0.2560.1400" timestamp="1585983720208" />
+    <state x="972" y="527" key="com.intellij.ide.util.TipDialog" timestamp="1585980908964">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="972" y="527" key="com.intellij.ide.util.TipDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1585980908964" />
   </component>
 </project>
