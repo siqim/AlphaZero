@@ -11,15 +11,15 @@ from GUI_v1_4 import GUI
 
 class Board(object):
     '''
-    board for the game
+    state for the game
     '''
     def __init__(self, **kwargs):
         self.width = int(kwargs.get('width', 11))
         self.height = int(kwargs.get('height', 11))
         self.states = {}
-        # board states stored as a dict,
-        # key: move as location on the board,
-        # value: player as pieces type
+        # state states stored as a dict,
+        # key: move as location on the state,
+        # value: player_id as pieces type
         self.n_in_row = int(kwargs.get('n_in_row', 5))
         # need how many pieces in a row to win
         self.players = [1, 2]
@@ -30,8 +30,8 @@ class Board(object):
         # in alphago zero is 17 and the input to the neural network is 19x19x17
         # here is a (self.feature_planes+1) x self.width x self.height binary feature planes,
         # the self.feature_planes is the number of history features
-        # the additional plane is the color feature that indicate the current player
-        # for example, in 11x11 board, is 11x11x9,8 for history features and 1 for current player
+        # the additional plane is the color feature that indicate the current player_id
+        # for example, in 11x11 state, is 11x11x9,8 for history features and 1 for current player_id
         self.states_sequence = deque(maxlen=self.feature_planes)
         self.states_sequence.extendleft([[-1,-1]] * self.feature_planes)
         #use the deque to store last 8 moves
@@ -39,12 +39,12 @@ class Board(object):
 
     def init_board(self, start_player=0):
         '''
-        init the board and set some variables
+        init the state and set some variables
         '''
         if self.width < self.n_in_row or self.height < self.n_in_row:
-            raise Exception('board width and height can not be '
+            raise Exception('state width and height can not be '
                             'less than {}'.format(self.n_in_row))
-        self.current_player = self.players[start_player]  # start player
+        self.current_player = self.players[start_player]  # start player_id
         self.availables = list(range(self.width * self.height))
         # keep available moves in a list
         # once a move has been played, remove it right away
@@ -58,7 +58,7 @@ class Board(object):
         '''
         transfer move number to coordinate
 
-        3*3 board's moves like:
+        3*3 state's moves like:
         6 7 8
         3 4 5
         0 1 2
@@ -83,13 +83,13 @@ class Board(object):
 
     def current_state(self):
         '''
-        return the board state from the perspective of the current player.
+        return the state state from the perspective of the current player_id.
         state shape: (self.feature_planes+1) x width x height
         '''
         square_state = np.zeros((self.feature_planes+1, self.width, self.height))
         if self.states:
             moves, players = np.array(list(zip(*self.states.items())))
-            # states contain the (key,value) indicate (move,player)
+            # states contain the (key,value) indicate (move,player_id)
             # for example
             # self.states.items() get dict_items([(1, 1), (2, 1), (3, 2)])
             # zip(*) get [(1, 2, 3), (1, 1, 2)]
@@ -115,14 +115,14 @@ class Board(object):
             for i in range(1,len(self.states_sequence)-2,2):
                 for j in range(i+2,len(self.states_sequence),2):
                     if self.states_sequence[i][1] != -1:
-                        assert square_state[j][self.states_sequence[i][0] // self.width,self.states_sequence[i][0] % self.height] ==1.0, 'wrong player number'
+                        assert square_state[j][self.states_sequence[i][0] // self.width,self.states_sequence[i][0] % self.height] ==1.0, 'wrong player_id number'
                         square_state[j][self.states_sequence[i][0] // self.width, self.states_sequence[i][0] % self.height] = 0.
 
         if len(self.states) % 2 == 0:
-            # if %2==0，it's player1's turn to player,then we assign 1 to the the whole plane,otherwise all 0
+            # if %2==0，it's player1's turn to player_id,then we assign 1 to the the whole plane,otherwise all 0
             square_state[self.feature_planes][:, :] = 1.0  # indicate the colour to play
 
-        # we should reverse it before return,for example the board is like
+        # we should reverse it before return,for example the state is like
         # 0,1,2,
         # 3,4,5,
         # 6,7,8,
@@ -134,7 +134,7 @@ class Board(object):
 
     def do_move(self, move):
         '''
-        update the board
+        update the state
         '''
         # print(self.states,move,self.current_player,self.players)
         self.states[move] = self.current_player
@@ -147,12 +147,12 @@ class Board(object):
             self.players[0] if self.current_player == self.players[1]
             else self.players[1]
         )
-        # change the current player
+        # change the current player_id
         self.last_move = move
 
     def has_a_winner(self):
         '''
-        judge if there's a 5-in-a-row, and which player if so
+        judge if there's a 5-in-a-row, and which player_id if so
         '''
         width = self.width
         height = self.height
@@ -198,16 +198,16 @@ class Board(object):
         '''
         end, winner = self.has_a_winner()
         if end:
-            # if one win,return the winner
+            # if one win,return the player_id
             return True, winner
         elif not len(self.availables):
-            # if the board has been filled and no one win ,then return -1
+            # if the state has been filled and no one win ,then return -1
             return True, -1
         return False, -1
 
     def get_current_player(self):
         '''
-        return current player
+        return current player_id
         '''
         return self.current_player
 
@@ -217,13 +217,13 @@ class Game(object):
     '''
     def __init__(self, board, **kwargs):
         '''
-        init a board
+        init a state
         '''
         self.board = board
 
     def graphic(self, board, player1, player2):
         '''
-        Draw the board and show game info
+        Draw the state and show game info
         '''
         width = board.width
         height = board.height
@@ -278,7 +278,7 @@ class Game(object):
             self.board.do_move(move)
 
             if is_shown:
-                print('player %r move : %r' % (current_player, [move // self.board.width, move % self.board.width]))
+                print('player_id %r move : %r' % (current_player, [move // self.board.width, move % self.board.width]))
                 self.graphic(self.board, player1.player, player2.player)
             end, winner = self.board.game_end()
 
@@ -341,19 +341,19 @@ class Game(object):
                 else:
                     # print('ignored inp:', inp)
                     continue
-            # print('player %r move : %r'%(current_player,[move//self.board.width,move%self.board.width]))
+            # print('player_id %r move : %r'%(current_player,[move//self.state.width,move%self.state.width]))
             if not end:
                 # print(move, type(move), current_player)
                 UI.render_step(move, self.board.current_player)
                 self.board.do_move(move)
                 # print('move', move)
-                # print(2, self.board.get_current_player())
+                # print(2, self.state.get_current_player())
                 current_player = (current_player + 1) % 2
                 # UI.render_step(move, current_player)
                 end, winner = self.board.game_end()
                 if end:
                     if winner != -1:
-                        print("Game end. Winner is player", winner)
+                        print("Game end. Winner is player_id", winner)
                         UI.add_score(winner)
                     else:
                         print("Game end. Tie")
@@ -362,7 +362,7 @@ class Game(object):
 
     def start_self_play(self, player, is_shown=0):
         '''
-        start a self-play game using a MCTS player, reuse the search tree,
+        start a self-play game using a MCTS player_id, reuse the search tree,
         and store the self-play data: (state, mcts_probs, z) for training
         '''
         self.board.init_board()
@@ -382,7 +382,7 @@ class Game(object):
                 self.graphic(self.board, p1, p2)
             end, winner = self.board.game_end()
             if end:
-                # winner from the perspective of the current player of each state
+                # player_id from the perspective of the current player_id of each state
                 winners_z = np.zeros(len(current_players))
                 if winner != -1:
                     winners_z[np.array(current_players) == winner] = 1.0
@@ -391,7 +391,7 @@ class Game(object):
                 player.reset_player()
                 if is_shown:
                     if winner != -1:
-                        print("Game end. Winner is player:", winner)
+                        print("Game end. Winner is player_id:", winner)
                     else:
                         print("Game end. Tie")
                 return winner, zip(states, mcts_probs, winners_z)

@@ -149,9 +149,9 @@ class PolicyValueNet():
 
     def policy_value_fn(self, board,actin_fc,evaluation_fc):
         '''
-        input: board,actin_fc,evaluation_fc
+        input: state,actin_fc,evaluation_fc
         output: a list of (action, probability) tuples for each available
-        action and the score of the board state
+        action and the score of the state state
         '''
         # the accurate policy value fn,
         # i prefer to use one that has some randomness even when test,
@@ -165,9 +165,9 @@ class PolicyValueNet():
 
     def policy_value_fn_random(self,board,actin_fc,evaluation_fc):
         '''
-        input: board,actin_fc,evaluation_fc
+        input: state,actin_fc,evaluation_fc
         output: a list of (action, probability) tuples for each available
-        action and the score of the board state
+        action and the score of the state state
         '''
         # like paper said,
         # The leaf node sL is added to a queue for neural network
@@ -264,7 +264,7 @@ class PolicyValueNet():
             action_conv_flat = tl.layers.FlattenLayer(action_conv,
                                                            name='flatten_layer_1')
             # 3-2 Full connected layer,
-            # the output is the log probability of moves on each slot on the board
+            # the output is the log probability of moves on each slot on the state
             action_fc = tl.layers.DenseLayer(action_conv_flat,
                                                   n_units=self.board_width*self.board_height,
                                                   act=tf.nn.log_softmax,name='dense_layer_1')

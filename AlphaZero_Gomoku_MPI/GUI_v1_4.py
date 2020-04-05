@@ -7,9 +7,9 @@ Created on Wed Dec 12 15:32:27 2018
 introduction:
     This is a UI for Gomoku game which does not contain the rule code.
 
-    Set self.UnitSize in __init__() to a different value can change the basic size of all elements
+    Set self.unit_size in __init__() to a different value can change the basic size of all elements
 
-    There are no limits for the value of board_size. So a board of any size can be created(if the system supports).
+    There are no limits for the value of board_size. So a state of any size can be created(if the system supports).
     Add limits in self.reset() if necessary.
 """
 import pygame
@@ -25,7 +25,7 @@ class GUI:
         self.BoardSize = board_size
         self.UnitSize = 40      # the basic size of all elements, try a different value!
         self.TestSize = int(self.UnitSize * 0.625)
-        self.state = {}         # a dictionary for pieces on board. filled with move-player pairs, such as 34:1
+        self.state = {}         # a dictionary for pieces on state. filled with move-player_id pairs, such as 34:1
         self.areas = {}         # a dictionary for button areas. filled with name-Rect pairs
         self.ScreenSize = None  # save the screen size for some calculation
         self.screen = None
@@ -44,13 +44,13 @@ class GUI:
     def reset(self, bs):
         """
         reset screen
-        :param bs: board size
+        :param bs: state size
         """
 
-        # # you can add limits for board size
+        # # you can add limits for state size
         # bs = int(bs)
         # if bs < 5:
-        #     raise ValueError('board size too small')
+        #     raise ValueError('state size too small')
 
         self.BoardSize = bs
         self.ScreenSize = (self.BoardSize * self.UnitSize + 2 * self.UnitSize,
@@ -64,7 +64,7 @@ class GUI:
         self.areas['ResetScore'] = Rect(0, self.ScreenSize[1] - self.UnitSize, self.UnitSize*2.5, self.UnitSize)
 
         board_lenth = self.UnitSize * self.BoardSize
-        self.areas['board'] = Rect(self.UnitSize, self.UnitSize, board_lenth, board_lenth)
+        self.areas['state'] = Rect(self.UnitSize, self.UnitSize, board_lenth, board_lenth)
 
     def restart_game(self, button_down=True):
         """
@@ -89,22 +89,22 @@ class GUI:
 
     def add_score(self, winner):
         """
-        add score for winner
-        :param winner: the name of the winner
+        add score for player_id
+        :param winner: the name of the player_id
         """
         if winner == 1:
             self.score[0] += 1
         elif winner == 2:
             self.score[1] += 1
         else:
-            raise ValueError('player number error')
+            raise ValueError('player_id number error')
         self.show_messages()
 
     def render_step(self, action, player):
         """
         render a step of the game
         :param action: 1*2 dimension location value such as (2, 3) or an int type move value such as 34
-        :param player: the name of the player
+        :param player: the name of the player_id
         """
         try:
             action = int(action)
@@ -158,7 +158,7 @@ class GUI:
 
                     for name, rec in self.areas.items():
                         if self._in_area(mouse_pos, rec):
-                            if name != 'board':
+                            if name != 'state':
                                 self._draw_button(name, 2, True)
                                 pygame.time.delay(100)
                                 self._draw_button(name, 1, True)
@@ -173,7 +173,7 @@ class GUI:
             if event.type == MOUSEMOTION:       # check mouse move event to highlight buttons
                 mouse_pos = event.pos
                 for name, rec in self.areas.items():
-                    if name != 'board':
+                    if name != 'state':
                         if self._in_area(mouse_pos, rec):
                             self._draw_button(name, 1, True)
                         else:
@@ -183,7 +183,7 @@ class GUI:
         """
         This is just a example to deal with inputs
         :param inp: inputs from get_input()
-        :param player: the name of the player
+        :param player: the name of the player_id
         """
         if inp[0] == 'RestartGame':
             self.restart_game()
@@ -229,7 +229,7 @@ class GUI:
         """
         draw pieces
         :param loc:  1*2 dimension location value such as (2, 3) or an int type move value such as 34
-        :param player: the name of the player
+        :param player: the name of the player_id
         :param last_step: whether it is the last step
         """
         try:
@@ -269,9 +269,9 @@ class GUI:
         """
         # draw background
         self.screen.fill(self._background_color)
-        # draw board
+        # draw state
         board_lenth = self.UnitSize * self.BoardSize
-        pygame.draw.rect(self.screen, self._board_color, self.areas['board'])
+        pygame.draw.rect(self.screen, self._board_color, self.areas['state'])
         for i in range(self.BoardSize):
             # draw grid lines
             start = self.UnitSize * (i + 0.5)
@@ -286,7 +286,7 @@ class GUI:
 
         # draw buttons
         for name in self.areas.keys():
-            if name != 'board':
+            if name != 'state':
                 self._draw_button(name)
 
         self.show_messages()
@@ -347,9 +347,9 @@ if __name__ == '__main__':
     UI.add_score(1)
     while True:
         if i == 1:
-            UI.show_messages('first player\'s turn')
+            UI.show_messages('first player_id\'s turn')
         else:
-            UI.show_messages('second player\'s turn')
+            UI.show_messages('second player_id\'s turn')
         inp = UI.get_input()
         print(inp)
         UI.deal_with_input(inp, i)

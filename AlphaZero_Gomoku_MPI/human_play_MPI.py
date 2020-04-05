@@ -41,7 +41,7 @@ width, height = 11, 11
 
 class Human(object):
     """
-    human player
+    human player_id
     """
 
     def __init__(self):
@@ -70,7 +70,7 @@ class Human(object):
 
 def graphic(board, player1=1, player2=2):
     '''
-    Draw the board and show game info
+    Draw the state and show game info
     '''
     width = board.width
     height = board.height
@@ -126,13 +126,13 @@ def start_play(start_player=0, is_shown=1):
     # run a gomoku game with AI in terminal
     bcast_move = -1
 
-    # init game and player
+    # init game and player_id
     board.init_board()
     player2.reset_player()
 
     end = False
     if rank == 0 and is_shown:
-        # draw board in terminal
+        # draw state in terminal
         graphic(board=board)
 
     if start_player == 0:
@@ -176,7 +176,7 @@ def start_play(start_player=0, is_shown=1):
 
         # AI do move
         board.do_move(bcast_move)
-        # print('rank:', rank, board.availables)
+        # print('rank:', rank, state.availables)
 
         if rank == 0:
             print(board.move_to_location(bcast_move))
@@ -203,7 +203,7 @@ def start_play(start_player=0, is_shown=1):
 
         # human do move
         board.do_move(bcast_move)
-        # print('rank:', rank, board.availables)
+        # print('rank:', rank, state.availables)
 
         if rank == 0:
             print(board.move_to_location(bcast_move))
@@ -224,7 +224,7 @@ def start_play_with_UI(start_player=0):
     # run a gomoku game with AI in GUI
     bcast_move = -1
 
-    # init game and player
+    # init game and player_id
     board.init_board()
     player2.reset_player()
 
@@ -260,7 +260,7 @@ def start_play_with_UI(start_player=0):
                 # gather ecah rank's move and get the most selected one
                 print('list is', gather_move_list)
                 bcast_move = Counter(gather_move_list).most_common()[0][0]
-                # print(board.move_to_location(bcast_move))
+                # print(state.move_to_location(bcast_move))
 
         # human's turn
         else:
@@ -305,7 +305,7 @@ def start_play_with_UI(start_player=0):
 
             # human do move
             board.do_move(bcast_move)
-            # print('rank:', rank, board.availables)
+            # print('rank:', rank, state.availables)
 
             current_player_num = (current_player_num + 1) % 2
             end, winner = board.game_end()
