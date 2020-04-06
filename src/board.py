@@ -7,7 +7,6 @@ Created on 2020/4/4
 """
 
 import numpy as np
-from utils import move_2_loc, loc_2_move
 
 
 class Board(object):
@@ -61,12 +60,14 @@ class Board(object):
             return True
 
         # diagonal \
-        elif any([set([self.state[x - i + j][y - i + j] if 0 <= x - i + j <= self.board_size - 1 and 0 <= y - i + j <= self.board_size - 1
+        elif any([set([self.state[x - i + j][y - i + j]
+                       if 0 <= x - i + j <= self.board_size - 1 and 0 <= y - i + j <= self.board_size - 1
                        else False for j in range(5)]) == {player_id} for i in range(5)]):
             return True
 
         # diagonal /
-        elif any([set([self.state[x - i + j][y + i - j] if 0 <= x - i + j <= self.board_size - 1 and 0 <= y + i - j <= self.board_size - 1
+        elif any([set([self.state[x - i + j][y + i - j]
+                       if 0 <= x - i + j <= self.board_size - 1 and 0 <= y + i - j <= self.board_size - 1
                        else False for j in range(5)]) == {player_id} for i in range(5)]):
             return True
         else:
