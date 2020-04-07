@@ -65,7 +65,7 @@ class TreeNode(object):
     def update(self, leaf_value):
         '''
         Update node values from leaf evaluation.
-        leaf_value: the value of subtree evaluation from the current player's perspective.
+        leaf_value: the value of subtree evaluation from the current player_id's perspective.
         '''
         self._n_visits += 1
         # update visit count
@@ -114,10 +114,10 @@ class MCTS(object):
     '''
     def __init__(self, policy_value_fn, c_puct=5, n_playout=400):
         '''
-        policy_value_fn: a function that takes in a board state and outputs
+        policy_value_fn: a function that takes in a state state and outputs
             a list of (action, probability) tuples and also a score in [-1, 1]
             (i.e. the expected value of the end game score from the current
-            player's perspective) for the current player.
+            player_id's perspective) for the current player_id.
         c_puct: a number in (0, inf) that controls how quickly exploration
             converges to the maximum-value policy. A higher value means
             relying on the prior more.
@@ -163,7 +163,7 @@ class MCTS(object):
     def _evaluate_rollout(self, state, limit=1000):
         '''
         Use the rollout policy to play until the end of the game,
-        returning +1 if the current player wins, -1 if the opponent wins,
+        returning +1 if the current player_id wins, -1 if the opponent wins,
         and 0 if it is a tie.
         '''
         player = state.get_current_player()
@@ -179,7 +179,7 @@ class MCTS(object):
         else:
             # If no break from the loop, issue a warning.
             print("WARNING: rollout reached move limit")
-        # print('winner is ...',winner)
+        # print('player_id is ...',player_id)
         if winner == -1:  # tie
             return 0
         else:
@@ -228,7 +228,7 @@ class MCTS(object):
 
 class MCTSPlayer(object):
     '''
-    AI player based on MCTS
+    AI player_id based on MCTS
     '''
     def __init__(self, c_puct=5, n_playout=400):
         '''
@@ -238,13 +238,13 @@ class MCTSPlayer(object):
 
     def set_player_ind(self, p):
         '''
-        set player index
+        set player_id index
         '''
         self.player = p
 
     def reset_player(self):
         '''
-        reset player
+        reset player_id
         '''
         self.mcts.update_with_move(-1) # reset the node
 
@@ -265,7 +265,7 @@ class MCTSPlayer(object):
             self.mcts.update_with_move(move)
             # every time when get a move, update the tree
         else:
-            print("WARNING: the board is full")
+            print("WARNING: the state is full")
 
         return move, None
 

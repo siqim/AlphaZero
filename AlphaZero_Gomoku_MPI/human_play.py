@@ -17,7 +17,7 @@ from collections import defaultdict
 
 class Human(object):
     """
-    human player
+    human player_id
     """
     def __init__(self):
         self.player = None
@@ -78,7 +78,7 @@ def run(start_player=0,is_shown=1):
     #                                     n_playout=400,
     #                                     is_selfplay=False)
 
-    # human player, input your move in the format: 2,3
+    # human player_id, input your move in the format: 2,3
     # set start_player=0 for human first
     # play in termianl without GUI
 

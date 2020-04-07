@@ -20,7 +20,7 @@ from policy_value_net_tensorlayer import PolicyValueNet
 class TrainPipeline():
     def __init__(self, init_model=None,transfer_model=None):
         self.resnet_block = 19  # num of block structures in resnet
-        # params of the board and the game
+        # params of the state and the game
         self.board_width = 11
         self.board_height = 11
         self.n_in_row = 5
@@ -165,7 +165,7 @@ class TrainPipeline():
 
     def policy_evaluate(self, n_games=10):
         '''
-        Evaluate the trained policy by playing against the pure MCTS player
+        Evaluate the trained policy by playing against the pure MCTS player_id
         Note: this is only for monitoring the progress of training
         '''
         current_mcts_player = MCTSPlayer(policy_value_function=self.policy_value_net.policy_value_fn_random,

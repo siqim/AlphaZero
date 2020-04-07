@@ -44,8 +44,8 @@ class TreeNode(object):
         # while here i contained the Node under the chosen action, it's a little different.
         # there's no idea which is better
         # in addition, the parameters should be tried
-        # for 11x11 board,
-        # dirichlet parameter :0.3 is ok, should be smaller with a bigger board,such as 20x20 with 0.03
+        # for 11x11 state,
+        # dirichlet parameter :0.3 is ok, should be smaller with a bigger state,such as 20x20 with 0.03
         # weights between priors and noise: 0.75 and 0.25 in paper and i don't change it here,
         # but i think maybe 0.8/0.2 or even 0.9/0.1 is better because i add noise in every node
         # rich people can try some other parameters
@@ -72,7 +72,7 @@ class TreeNode(object):
     def update(self, leaf_value):
         '''
         Update node values from leaf evaluation.
-        leaf_value: the value of subtree evaluation from the current player's
+        leaf_value: the value of subtree evaluation from the current player_id's
             perspective.
         '''
         self._n_visits += 1
@@ -123,10 +123,10 @@ class MCTS(object):
     '''
     def __init__(self, policy_value_fn,action_fc,evaluation_fc, is_selfplay,c_puct=5, n_playout=400):
         '''
-        policy_value_fn: a function that takes in a board state and outputs
+        policy_value_fn: a function that takes in a state state and outputs
             a list of (action, probability) tuples and also a score in [-1, 1]
             (i.e. the expected value of the end game score from the current
-            player's perspective) for the current player.
+            player_id's perspective) for the current player_id.
         c_puct: a number in (0, inf) that controls how quickly exploration
             converges to the maximum-value policy. A higher value means
             relying on the prior more.
@@ -164,7 +164,7 @@ class MCTS(object):
 
         # Evaluate the leaf using a network which outputs a list of
         # (action, probability) tuples p and also a score v in [-1, 1]
-        # for the current player.
+        # for the current player_id.
         action_probs, leaf_value = self._policy_value_fn(state,self._action_fc,self._evaluation_fc)
         # Check for end of game.
         end, winner = state.game_end()
@@ -219,7 +219,7 @@ class MCTS(object):
 
 class MCTSPlayer(object):
     '''
-    AI player based on MCTS
+    AI player_id based on MCTS
     '''
     def __init__(self, policy_value_function,action_fc,evaluation_fc,c_puct=5, n_playout=400, is_selfplay=0):
         '''
@@ -242,13 +242,13 @@ class MCTSPlayer(object):
 
     def set_player_ind(self, p):
         '''
-        set player index
+        set player_id index
         '''
         self.player = p
 
     def reset_player(self):
         '''
-        reset player
+        reset player_id
         '''
         self.mcts.update_with_move(-1)
 
@@ -307,7 +307,7 @@ class MCTSPlayer(object):
             return move,move_probs
 
         else:
-            print("WARNING: the board is full")
+            print("WARNING: the state is full")
 
     def __str__(self):
         return "Alpha {}".format(self.player)

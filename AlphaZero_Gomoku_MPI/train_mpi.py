@@ -30,7 +30,7 @@ class TrainPipeline():
     def __init__(self, init_model=None,transfer_model=None):
         self.game_count = 0 # count total game have played
         self.resnet_block = 19 # num of block structures in resnet
-        # params of the board and the game
+        # params of the state and the game
         self.board_width = 11
         self.board_height = 11
         self.n_in_row = 5
@@ -43,8 +43,8 @@ class TrainPipeline():
         self.n_playout = 400  # num of simulations for each move
         self.c_puct = 5
         self.buffer_size = 500000
-        # memory size, should be larger with bigger board
-        # in paper it can stores 500,000 games, here with 11x11 board can store only around 2000 games
+        # memory size, should be larger with bigger state
+        # in paper it can stores 500,000 games, here with 11x11 state can store only around 2000 games
         self.batch_size = 512  # mini-batch size for training
         self.data_buffer = deque(maxlen=self.buffer_size)
         self.play_batch_size = 1
@@ -201,7 +201,7 @@ class TrainPipeline():
     def policy_evaluate(self, n_games=10,num=0,self_evaluate = 0):
         '''
         Evaluate the trained policy by
-        playing against the pure MCTS player or play with itself
+        playing against the pure MCTS player_id or play with itself
         pure MCTS only for monitoring the progress of training
         play with itself (last best net) for evaluating the best model so as to collect data
         '''
