@@ -8,85 +8,105 @@ Created on 2020/4/5
 
 
 import numpy as np
-
-
-def get_ps_and_v(state):
-    ps = np.random.uniform(0, 1, 121)
-    v = np.random.uniform(-1, 1, 1).item()
-    return ps, v
+from board import Board
+from utils import idx_2_loc
 
 
 class Node(object):
 
-    def __init__(self, parent_node, p):
+    def __init__(self, parent_node, P):
+        # one node is associated with one state, but storing each state is too costly, so we don't store the state here.
         self.parent = parent_node
         self.children = {}
 
-        self.p = p
+        self.P = P
         self.N = 0
         self.Q = 0
 
-    def expand(self, ps):
-        for action, p in ps:
-            self.children[action] = Node(self, p)
+    def expand(self, probs):
+        for action, P in probs:
+            self.children[action] = Node(self, P)
 
 
 class MCTS(object):
 
-    def __init__(self, board):
+    def __init__(self, board, c_puct):
         self.board = board
+        self.c_puct = c_puct
+        self.use_nn = False
 
-    def one_simulation(self, action, start_node, start_state):
-        if self.board.winning_check(start_state, action):
-            start_node.v = 1
-            return None
+    def search(self, action, start_node, start_state):
+        if self.board.has_won(action, start_state):
+            v = 1
+            return -v
 
-        ps, v = get_ps_and_v(start_state)
-        start_node.v = v
-        if not start_node.children:
-            start_node.expand(ps)
+        if self.is_leaf_node(start_node):
+            probs, v = self.get_probs_and_v(start_state)
+            start_node.expand(probs)
+            return -v
 
         best_U = -float('inf')
         best_action = None
-        best_child = None
-        for action, child in start_node.children:
-            U = self.get_ucb()
+        best_child_node = None
+        for action, child_node in start_node.children.items():
+            U = self.get_ucb(child_node)
             if U > best_U:
                 best_action = action
-                best_child = child
+                best_child_node = child_node
                 best_U = U
         best_state = self.board.get_new_state(start_state, best_action)
 
-        self.one_simulation(best_action, best_child, best_state)
+        v = self.search(best_action, best_child_node, best_state)
 
-        start_node.Q = ((start_node.Q * start_node.N) + best_child.v) / (start_node.N + 1)
+        start_node.Q = ((start_node.Q * start_node.N) + v) / (start_node.N + 1)
         start_node.N += 1
 
-        return None
-
-
-    def get_ucb(self):
-        return np.random.uniform(-1, 1, 1).item()
-
-def search(s, game, nnet):
-    if game.gameEnded(s): return -game.gameReward(s)
-
-    if s not in visited:
-        visited.add(s)
-        P[s], v = nnet.predict(s)
         return -v
 
-    max_u, best_a = -float("inf"), -1
-    for a in game.getValidActions(s):
-        u = Q[s][a] + c_puct*P[s][a]*sqrt(sum(N[s]))/(1+N[s][a])
-        if u>max_u:
-            max_u = u
-            best_a = a
-    a = best_a
+    def get_one_move(self, node, state, num_simulations):
+        [self.search(action=None, start_node=node, start_state=state) for _ in range(num_simulations)]
 
-    sp = game.nextState(s, a)
-    v = search(sp, game, nnet)
+        action = np.random.choice(a=[action for action in node.children.keys()],
+                                  p=[child_node.N for child_node in node.children.values()])
 
-    Q[s][a] = (N[s][a]*Q[s][a] + v)/(N[s][a]+1)
-    N[s][a] += 1
-    return -v
+        return action
+
+    def get_probs_and_v(self, state):
+        indices = np.arange(self.board.board_size ** 2)
+        locations = [idx_2_loc(idx, self.board.board_size) for idx in indices]
+
+        if self.use_nn:
+            probs = {loc: np.random.uniform(0, 1, 1).item() for loc in locations}
+            v = np.random.uniform(-1, 1, 1).item()
+        else:
+            probs = {loc: np.random.uniform(0, 1, 1).item() for loc in locations}
+            v = np.random.uniform(-1, 1, 1).item()
+        return probs, v
+
+    @staticmethod
+    def get_ucb(node):
+        Q = node.Q
+        P = node.P
+        N = node.N
+        return np.random.uniform(-1, 1, 1).item()
+
+    @staticmethod
+    def is_leaf_node(node):
+        if node.children == {}:
+            return True
+        else:
+            return False
+
+
+if __name__ == '__main__':
+
+    c_puct = 1
+    num_simulations = 1600
+    board_size = 11
+
+    board = Board(board_size)
+    node = Node(None, 1)
+    state = board.state
+
+    mcts = MCTS(board, c_puct)
+    mcts.get_one_move(node, state, num_simulations)
