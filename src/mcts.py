@@ -7,6 +7,7 @@ Created on 2020/4/5
 """
 
 
+import time
 import numpy as np
 from board import Board
 
@@ -46,7 +47,7 @@ class Node(object):
             self.children[action] = Node(self, P, next_player_id)
 
     @staticmethod
-    def get_ucb(node):
+    def calc_ucb(node):
         Q = node.Q
         P = node.P
         N = node.N
@@ -98,8 +99,10 @@ class MCTS(object):
             self.search(action=None, start_node=node, start_state=state)
 
         actions = list(node.children.keys())
+        Ns = [child_node.N for child_node in node.children.values()]
+
         idx = np.random.choice(a=range(len(actions)),
-                               p=[child_node.N for child_node in node.children.values()])
+                               p=[N / sum(Ns) for N in Ns])
         action = actions[idx]
         return action
 
@@ -127,7 +130,7 @@ class MCTS(object):
         best_child_node = None
 
         for action, child_node in start_node.children.items():
-            U = Node.get_ucb(child_node)
+            U = Node.calc_ucb(child_node)
             if U > best_U:
                 best_action = action
                 best_child_node = child_node
@@ -149,4 +152,9 @@ if __name__ == '__main__':
     state = board.state
 
     mcts = MCTS(board, c_puct)
-    mcts.get_one_move_by_simulations(node, state, num_simulations)
+
+    while 1:
+        tik = time.time()
+        action = mcts.get_one_move_by_simulations(node, state, num_simulations)
+        tok = time.time()
+        print(tok - tik)
