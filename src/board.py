@@ -38,8 +38,9 @@ class Board(object):
             winning_flag: true for wining; false for losing
         """
         assert state[action] == 0
-        state[action] = player_id
-        return state
+        new_state = state.copy()
+        new_state[action] = player_id
+        return new_state
 
     @staticmethod
     def has_won(action, state, board_size):

@@ -9,12 +9,17 @@ Created on 2020/4/5
 
 import numpy as np
 from board import Board
-from utils import idx_2_loc
 
 
 class Node(object):
 
     def __init__(self, parent_node, P, player_id):
+        """Class for representing nodes in the monte carlo tree.
+
+        :param parent_node: an instance of the Node class, which is the parent of the current node
+        :param P: proir probs for the current node
+        :param player_id: the player who is gonna play based on the current state
+        """
         # one node is associated with one state, but storing each state is too costly, so we don't store the state here.
         self.parent = parent_node
         self.children = {}
@@ -27,7 +32,7 @@ class Node(object):
     def expand(self, probs):
         """To expand a leaf node.
 
-        :param probs:
+        :param probs: a dict with prior prob for each action
         :return:
         """
         if self.player_id == 1:
@@ -37,7 +42,7 @@ class Node(object):
         else:
             raise ValueError('Unknown value!!!')
 
-        for action, P in probs:
+        for action, P in probs.items():
             self.children[action] = Node(self, P, next_player_id)
 
     @staticmethod
@@ -79,16 +84,7 @@ class MCTS(object):
             start_node.expand(probs)
             return -v
 
-        best_U = -float('inf')
-        best_action = None
-        best_child_node = None
-        for action, child_node in start_node.children.items():
-            U = Node.get_ucb(child_node)
-            if U > best_U:
-                best_action = action
-                best_child_node = child_node
-                best_U = U
-        best_state = Board.get_new_state(start_state, best_action, start_node.player_id)
+        best_action, best_child_node, best_state = MCTS.choose_max_ucb_move(start_node, start_state)
 
         v = self.search(best_action, best_child_node, best_state)
 
@@ -97,26 +93,48 @@ class MCTS(object):
 
         return -v
 
-    def get_one_move(self, node, state, num_simulations):
+    def get_one_move_by_simulations(self, node, state, num_simulations):
         for _ in range(num_simulations):
             self.search(action=None, start_node=node, start_state=state)
 
-        action = np.random.choice(a=[action for action in node.children.keys()],
-                                  p=[child_node.N for child_node in node.children.values()])
-
+        actions = list(node.children.keys())
+        idx = np.random.choice(a=range(len(actions)),
+                               p=[child_node.N for child_node in node.children.values()])
+        action = actions[idx]
         return action
 
     def get_probs_and_v(self, state):
-        indices = np.arange(self.board.board_size ** 2)
-        locations = [idx_2_loc(idx, self.board.board_size) for idx in indices]
+        """Given the current state, return prior prob for each valid action and v for the current state.
+
+        :param state: the current states
+        :return:
+        """
+        valid_actions = np.argwhere(state == 0)
 
         if self.use_nn:
-            probs = {loc: np.random.uniform(0, 1, 1).item() for loc in locations}
+            probs = {tuple(action): np.random.uniform(0, 1, 1).item() for action in valid_actions}
             v = np.random.uniform(-1, 1, 1).item()
         else:
-            probs = {loc: np.random.uniform(0, 1, 1).item() for loc in locations}
+            probs = {tuple(action): np.random.uniform(0, 1, 1).item() for action in valid_actions}
             v = np.random.uniform(-1, 1, 1).item()
         return probs, v
+
+    @staticmethod
+    def choose_max_ucb_move(start_node, start_state):
+
+        best_U = -float('inf')
+        best_action = None
+        best_child_node = None
+
+        for action, child_node in start_node.children.items():
+            U = Node.get_ucb(child_node)
+            if U > best_U:
+                best_action = action
+                best_child_node = child_node
+                best_U = U
+
+        best_state = Board.get_new_state(start_state, best_action, start_node.player_id)
+        return best_action, best_child_node, best_state
 
 
 if __name__ == '__main__':
@@ -131,4 +149,4 @@ if __name__ == '__main__':
     state = board.state
 
     mcts = MCTS(board, c_puct)
-    mcts.get_one_move(node, state, num_simulations)
+    mcts.get_one_move_by_simulations(node, state, num_simulations)
