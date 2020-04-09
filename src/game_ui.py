@@ -10,7 +10,6 @@ Created on 2020-04-02
 
 
 from board import Board
-from itertools import product
 import numpy as np
 import pygame
 from pygame.locals import *
@@ -121,7 +120,8 @@ class GUI(object):
         if self.last_action_player:     # draw a cross on the last piece to mark the last move
             self._draw_pieces(self.last_action_player[0], self.last_action_player[1], False)
 
-        self.board.get_new_state(action, player_id)
+        self.board.state = Board.get_new_state(self.board.state, action, player_id)
+        self.board.winning_flag = Board.has_won(action, self.board.state, self.board_size)
         self._draw_pieces(action, player_id, True)
         self.state[action] = player_id
         self.last_action_player = action, player_id
@@ -290,14 +290,11 @@ class GUI(object):
         return True if area[0] < loc[0] < area[0] + area[2] and area[1] < loc[1] < area[1] + area[3] else False
 
 
-states = list(product(range(11), range(11)))
-
-
-def get_ai_action():
+def get_ai_action(state):
     time.sleep(0.1)
-    idx = np.random.choice(range(len(states)))
-    action = states[idx]
-    states.pop(idx)
+    valid_actions = np.argwhere(state == 0)
+    idx = np.random.choice(range(valid_actions.shape[0]))
+    action = tuple(valid_actions[idx])
     return action
 
 
@@ -307,13 +304,13 @@ def process_one_move(mode, click, player_id, ui, ai_first):
         ui.render_step(action, player_id)
 
     elif mode == 'AI vs AI':
-        action = get_ai_action()
+        action = get_ai_action(ui.board.state)
         ui.render_step(action, player_id)
 
     elif mode == 'Man vs AI':
         if ai_first:
             if player_id == 1:
-                action = get_ai_action()
+                action = get_ai_action(ui.board.state)
                 ui.render_step(action, player_id)
             else:
                 action = click[1]
@@ -324,7 +321,7 @@ def process_one_move(mode, click, player_id, ui, ai_first):
                 action = click[1]
                 ui.render_step(action, player_id)
             else:
-                action = get_ai_action()
+                action = get_ai_action(ui.board.state)
                 ui.render_step(action, player_id)
 
     else:
@@ -345,10 +342,6 @@ def main():
             ui.show_messages("First Player [{player}] is thinking...".format(player=first_player))
         elif not ui.board.winning_flag and player_id == 2:
             ui.show_messages("Second Player [{player}] is thinking...".format(player=second_player))
-        elif ui.board.winning_flag and player_id == 1:
-            ui.show_messages("First Player [{player}] has won!!!".format(player=first_player))
-        elif ui.board.winning_flag and player_id == 2:
-            ui.show_messages("Second Player [{player}] has won!!!".format(player=second_player))
 
         if not ui.board.winning_flag and mode == 'AI vs AI' \
                 or ((mode == 'Man vs AI') and ((ai_first and player_id == 1) or (not ai_first and player_id == 2))):
@@ -371,11 +364,16 @@ def main():
         elif click[0] == 'move':
             action = process_one_move(mode, click, player_id, ui, ai_first)
             print(action)
+
             if ui.board.winning_flag:
                 ui.add_score(player_id)
-            else:
-                player_id %= 2
-                player_id += 1
+                if player_id == 1:
+                    ui.show_messages("First Player [{player}] has won!!!".format(player=first_player))
+                else:
+                    ui.show_messages("Second Player [{player}] has won!!!".format(player=second_player))
+
+            player_id %= 2
+            player_id += 1
         else:
             raise ValueError('Unknown inputs!!!')
 
