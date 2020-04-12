@@ -25,3 +25,7 @@ def loc_2_idx(loc, board_size):
     :return: an int type move value such as 34
     """
     return loc[0] * board_size + loc[1]
+
+
+def switch_player(player_id):
+    return 2 if player_id == 1 else 1

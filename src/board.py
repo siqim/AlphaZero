@@ -17,11 +17,12 @@ class Board(object):
     def __init__(self, board_size):
         self.board_size = board_size
         self.winning_flag = False
-        self.state = np.zeros([self.board_size] * 2, dtype=np.uint8)
+        self.init_state = np.zeros([self.board_size] * 2, dtype=np.uint8)
+        self.state = self.init_state.copy()
 
     def reset_board(self):
         self.winning_flag = False
-        self.state = np.zeros([self.board_size] * 2, dtype=np.uint8)
+        self.state = self.init_state.copy()
 
     def get_current_state(self):
         return self.state

@@ -9,6 +9,7 @@ Created on 2020-04-02
 # adapted from https://github.com/initial-h/AlphaZero_Gomoku_MPI/blob/master/GUI_v1_4.py
 
 
+from utils import switch_player
 from board import Board
 import numpy as np
 import pygame
@@ -372,8 +373,7 @@ def main():
                 else:
                     ui.show_messages("Second Player [{player}] has won!!!".format(player=second_player))
 
-            player_id %= 2
-            player_id += 1
+            player_id = switch_player(player_id)
         else:
             raise ValueError('Unknown inputs!!!')
 

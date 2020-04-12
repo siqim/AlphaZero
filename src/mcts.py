@@ -8,13 +8,14 @@ Created on 2020/4/5
 
 
 import time
+from utils import switch_player
 import numpy as np
 from board import Board
 
 
 class Node(object):
 
-    def __init__(self, parent_node, P, player_id):
+    def __init__(self, parent_node, P, action, player_id):
         """Class for representing nodes in the monte carlo tree.
 
         :param parent_node: an instance of the Node class, which is the parent of the current node
@@ -28,6 +29,7 @@ class Node(object):
         self.P = P
         self.N = 0
         self.Q = 0
+        self.action = action  # the action that leads to this node
         self.player_id = player_id
 
     def expand(self, probs):
@@ -36,22 +38,16 @@ class Node(object):
         :param probs: a dict with prior prob for each action
         :return:
         """
-        if self.player_id == 1:
-            next_player_id = 2
-        elif self.player_id == 2:
-            next_player_id = 1
-        else:
-            raise ValueError('Unknown value!!!')
+
+        next_player_id = switch_player(self.player_id)
 
         for action, P in probs.items():
-            self.children[action] = Node(self, P, next_player_id)
+            self.children[action] = Node(self, P, action, next_player_id)
 
     @staticmethod
-    def calc_ucb(node):
-        Q = node.Q
-        P = node.P
-        N = node.N
-        return np.random.uniform(-1, 1, 1).item()
+    def calc_ucb(node, c_puct):
+        U = c_puct * node.P * np.sqrt(node.parent.N) / (1 + node.N)
+        return node.Q + U
 
     @staticmethod
     def is_leaf_node(node):
@@ -70,13 +66,15 @@ class Node(object):
 
 class MCTS(object):
 
-    def __init__(self, board, c_puct):
-        self.board = board
+    def __init__(self, board_size, c_puct, strategy='stochastically', tau=1, use_nn=False):
+        self.board_size = board_size
         self.c_puct = c_puct
-        self.use_nn = False
+        self.strategy = strategy
+        self.tau = tau
+        self.use_nn = use_nn
 
     def search(self, action, start_node, start_state):
-        if Board.has_won(action, start_state, self.board.board_size):
+        if Board.has_won(action, start_state, self.board_size):
             v = 1
             return -v
 
@@ -85,12 +83,12 @@ class MCTS(object):
             start_node.expand(probs)
             return -v
 
-        best_action, best_child_node, best_state = MCTS.choose_max_ucb_move(start_node, start_state)
+        best_action, best_child_node, best_state = self.choose_max_ucb_move(start_node, start_state)
 
         v = self.search(best_action, best_child_node, best_state)
 
         start_node.Q = ((start_node.Q * start_node.N) + v) / (start_node.N + 1)
-        start_node.N += 1
+        best_child_node.N += 1
 
         return -v
 
@@ -98,13 +96,24 @@ class MCTS(object):
         for _ in range(num_simulations):
             self.search(action=None, start_node=node, start_state=state)
 
-        actions = list(node.children.keys())
-        Ns = [child_node.N for child_node in node.children.values()]
+        action, next_node = self.sample_actions(node)
+        return action, next_node  # the action will lead to the next_node, that is, the next state
 
-        idx = np.random.choice(a=range(len(actions)),
-                               p=[N / sum(Ns) for N in Ns])
+    def sample_actions(self, node):
+        actions, child_nodes = zip(*node.children.items())
+        Ns = [child_node.N ** (1/self.tau) for child_node in child_nodes]
+
+        if self.strategy == 'deterministically':
+            idx = np.argmax(Ns)
+        elif self.strategy == 'stochastically':
+            idx = np.random.choice(a=range(len(actions)), p=[N / sum(Ns) for N in Ns])
+        else:
+            raise ValueError('Unknown value!!!')
+
         action = actions[idx]
-        return action
+        next_node = child_nodes[idx]
+
+        return action, next_node
 
     def get_probs_and_v(self, state):
         """Given the current state, return prior prob for each valid action and v for the current state.
@@ -122,15 +131,14 @@ class MCTS(object):
             v = np.random.uniform(-1, 1, 1).item()
         return probs, v
 
-    @staticmethod
-    def choose_max_ucb_move(start_node, start_state):
+    def choose_max_ucb_move(self, start_node, start_state):
 
         best_U = -float('inf')
         best_action = None
         best_child_node = None
 
         for action, child_node in start_node.children.items():
-            U = Node.calc_ucb(child_node)
+            U = Node.calc_ucb(child_node, self.c_puct)
             if U > best_U:
                 best_action = action
                 best_child_node = child_node
@@ -143,18 +151,38 @@ class MCTS(object):
 if __name__ == '__main__':
 
     c_puct = 1
-    num_simulations = 1600
+    num_simulations = 400
     board_size = 11
-    init_player_id = 1
+    player_id = 1
+    max_moves = 11**2
+    max_games = 25000
 
     board = Board(board_size)
-    node = Node(parent_node=None, P=1, player_id=init_player_id)
-    state = board.state
+    mcts = MCTS(board_size, c_puct)
 
-    mcts = MCTS(board, c_puct)
+    num_games = 0
+    while num_games < max_games:
 
-    while 1:
         tik = time.time()
-        action = mcts.get_one_move_by_simulations(node, state, num_simulations)
+
+        node = Node(parent_node=None, P=1, action=None, player_id=player_id)
+        state = board.init_state
+
+        num_moves = 0
+        while 1:
+
+            action, node = mcts.get_one_move_by_simulations(node, state, num_simulations)
+            state = Board.get_new_state(state, action, player_id)
+            num_moves += 1
+
+            if Board.has_won(action, state, board_size):
+                print('Play {player_id} has won the game!'.format(player_id=player_id))
+                num_games += 1
+                break
+            elif num_moves == max_moves:
+                break
+
+            player_id = switch_player(player_id)
+
         tok = time.time()
-        print(tok - tik)
+        print(num_games, tok-tik, num_moves)
