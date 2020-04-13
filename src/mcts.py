@@ -8,7 +8,8 @@ Created on 2020/4/5
 
 
 import time
-from utils import switch_player
+from collections import deque
+from utils import switch_player, idx_2_loc, change_sampling_strategy
 import numpy as np
 from board import Board
 
@@ -59,12 +60,17 @@ class Node(object):
 
 class MCTS(object):
 
-    def __init__(self, board_size, c_puct, strategy='stochastically', tau=1, use_nn=False):
+    def __init__(self, board_size, strategy='stochastically', c_puct=5,
+                 use_nn=True, add_noise=True, alpha=0.03, eps=0.25):
         self.board_size = board_size
-        self.c_puct = c_puct
+
         self.strategy = strategy
-        self.tau = tau
+        self.c_puct = c_puct
+
         self.use_nn = use_nn
+        self.add_noise = add_noise
+        self.alpha = alpha
+        self.eps = eps
 
     def search(self, action, start_node, start_state):
         if Board.has_won(action, start_state, self.board_size):
@@ -94,7 +100,7 @@ class MCTS(object):
 
     def sample_actions(self, node):
         actions, child_nodes = zip(*node.children.items())
-        Ns = [child_node.N ** (1/self.tau) for child_node in child_nodes]
+        Ns = [child_node.N for child_node in child_nodes]
 
         if self.strategy == 'deterministically':
             idx = np.argmax(Ns)
@@ -116,13 +122,26 @@ class MCTS(object):
         """
         valid_actions = np.argwhere(state == 0)
 
+        # tell if we are gonna use neural net to get probs and v
         if self.use_nn:
-            probs = {tuple(action): np.random.uniform(0, 1, 1).item() for action in valid_actions}
+            probs = np.random.dirichlet([self.board_size**2]*self.board_size**2)
             v = np.random.uniform(-1, 1, 1).item()
         else:
-            probs = {tuple(action): np.random.uniform(0, 1, 1).item() for action in valid_actions}
+            probs = np.random.dirichlet([self.board_size**2]*self.board_size**2)
             v = np.random.uniform(-1, 1, 1).item()
-        return probs, v
+
+        # tell if we are gonna add dirichlet noise every time we expand a leaf node in order to enhance exploration
+        if self.add_noise:
+            noise = np.random.dirichlet([self.alpha]*self.board_size**2)
+            probs_dict = {idx_2_loc(idx, self.board_size):
+                          (1 - self.eps) * prob + self.eps * noise[idx]
+                          for idx, prob in enumerate(probs)}
+        else:
+            probs_dict = {idx_2_loc(idx, self.board_size): prob for idx, prob in enumerate(probs)}
+
+        probs_dict = {tuple(valid_action): probs_dict[tuple(valid_action)] for valid_action in valid_actions}
+
+        return probs_dict, v
 
     def choose_max_ucb_move(self, start_node, start_state):
 
@@ -141,32 +160,71 @@ class MCTS(object):
         return best_action, best_child_node, best_state
 
 
+def collect_self_play_data(player_id, state, history_buffer_black, history_buffer_white):
+
+    # 1 for black 2 for white
+    if player_id == 1:
+        player_indicator = np.ones_like(state, dtype=np.float32)
+
+        black_plane = np.zeros_like(state, dtype=np.float32)
+        black_plane[state == 1] = 1
+        history_buffer_black.append(black_plane)
+    else:
+        player_indicator = np.zeros_like(state, dtype=np.float32)
+
+        white_plane = np.zeros_like(state, dtype=np.float32)
+        white_plane[state == 2] = 1
+        history_buffer_white.append(white_plane)
+
+    x = np.stack((*history_buffer_black, *history_buffer_white, player_indicator))
+    p = None
+    v = None
+    return x, (p, v)
+
+
+
+
 if __name__ == '__main__':
 
-    c_puct = 1
+    strategy_change_point = 10
+    history_buffer_len_per_player = 7
+
     num_simulations = 400
     board_size = 11
-    player_id = 1
+    player_id = 1  # 1 for black 2 for white
     max_moves = 11**2
     max_games = 25000
 
     board = Board(board_size)
-    mcts = MCTS(board_size, c_puct)
+    mcts = MCTS(board_size)
 
+    # generate self-play games until we have max number of games.
     num_games = 0
     while num_games < max_games:
 
         tik = time.time()
 
-        node = Node(parent_node=None, P=1, action=None, player_id=player_id)
+        node = Node(parent_node=None, P=None, action=None, player_id=player_id)
         state = board.init_state
 
+        history_buffer_black = deque(maxlen=history_buffer_len_per_player)
+        history_buffer_white = deque(maxlen=history_buffer_len_per_player)
+        for _ in range(history_buffer_len_per_player):
+            history_buffer_black.append(np.zeros_like(state, dtype=np.float32))
+            history_buffer_white.append(np.zeros_like(state, dtype=np.float32))
+
+        # self-play until we have a winner or the number of moves exceeds the max_moves
         num_moves = 0
         while 1:
 
             action, node = mcts.get_one_move_by_simulations(node, state, num_simulations)
+
+            x, y = collect_self_play_data(player_id, state, history_buffer_black, history_buffer_white)
+
             state = Board.get_new_state(state, action, player_id)
             num_moves += 1
+
+            change_sampling_strategy(mcts, strategy_change_point, num_moves)
 
             if Board.has_won(action, state, board_size):
                 print('Play {player_id} has won the game!'.format(player_id=player_id))
