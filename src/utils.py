@@ -29,3 +29,11 @@ def loc_2_idx(loc, board_size):
 
 def switch_player(player_id):
     return 2 if player_id == 1 else 1
+
+
+def change_sampling_strategy(mcts, strategy_change_point, num_moves):
+    if num_moves <= strategy_change_point:
+        mcts.strategy = 'stochastically'
+    else:
+        mcts.strategy = 'deterministically'
+
