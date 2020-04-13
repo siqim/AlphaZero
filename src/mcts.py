@@ -19,7 +19,7 @@ class Node(object):
         """Class for representing nodes in the monte carlo tree.
 
         :param parent_node: an instance of the Node class, which is the parent of the current node
-        :param P: proir probs for the current node
+        :param P: prior probs for the current node
         :param player_id: the player who is gonna play based on the current state
         """
         # one node is associated with one state, but storing each state is too costly, so we don't store the state here.
@@ -52,13 +52,6 @@ class Node(object):
     @staticmethod
     def is_leaf_node(node):
         if node.children == {}:
-            return True
-        else:
-            return False
-
-    @staticmethod
-    def is_root_node(node):
-        if node.parent is None:
             return True
         else:
             return False
