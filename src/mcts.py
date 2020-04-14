@@ -19,7 +19,7 @@ from math import sqrt
 
 class Node(object):
 
-    def __init__(self, parent_node, p, action, player_id):
+    def __init__(self, parent_node, p, player_id):
         """Class for representing nodes in the monte carlo tree.
 
         :param parent_node: an instance of the Node class, which is the parent of the current node
@@ -33,7 +33,6 @@ class Node(object):
         self.p = p
         self.N = 0
         self.Q = 0
-        self.action = action  # the action that leads to this node
         self.player_id = player_id
 
     def expand(self, probs):
@@ -44,14 +43,12 @@ class Node(object):
         """
 
         next_player_id = switch_player(self.player_id)
-
-        # TODO: list comprehension
         for action, p in probs:
-            self.children[action] = Node(self, p, action, next_player_id)
+            self.children[action] = Node(self, p, next_player_id)
 
     @staticmethod
     def calc_ucb(node, c_puct):
-        U = c_puct * node.P * sqrt(node.parent.N) / (1 + node.N)
+        U = c_puct * node.p * sqrt(node.parent.N) / (1 + node.N)
         return node.Q + U
 
     @staticmethod
@@ -136,12 +133,9 @@ class MCTS(object):
         # tell if we are gonna add dirichlet noise every time we expand a leaf node in order to enhance exploration
         if self.add_noise:
             noise = np.random.dirichlet([self.alpha]*self.board_size**2)
-            probs_dict = [(action, (1 - self.eps) * probs[action] + self.eps * noise[action])
-                          for action in valid_actions]
+            probs = (1 - self.eps) * probs + self.eps * noise
 
-        else:
-            probs_dict = [(action, probs[action])
-                          for action in valid_actions]
+        probs_dict = [(action, probs[action]) for action in valid_actions]
         return probs_dict, v
 
     def choose_max_ucb_move(self, start_node, start_state):
@@ -196,7 +190,7 @@ if __name__ == '__main__':
     num_simulations = 400
     board_size = 11
     player_id = 1  # 1 for black 2 for white
-    max_moves = 11**2
+    max_moves = board_size**2
     max_games = 25000
 
     board = Board(board_size)
@@ -208,7 +202,7 @@ if __name__ == '__main__':
 
         tik = time.time()
 
-        node = Node(parent_node=None, p=None, action=None, player_id=player_id)
+        node = Node(parent_node=None, p=None, player_id=player_id)
         state = board.init_state
 
         history_buffer_black = deque(maxlen=history_buffer_len_per_player)

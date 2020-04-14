@@ -66,25 +66,43 @@ class Board(object):
         player_id = state[action]
 
         x, y = action
-        # horizontal
-        if any([(y-i >= 0 and y-i+5 <= board_size and all(state[x, y - i:y - i + 5] == player_id))
-                for i in range(5)]):
-            return True
-        # vertical
-        elif any([(x-i >= 0 and x-i+5 <= board_size and all(state[x - i:x - i + 5, y] == player_id))
-                  for i in range(5)]):
-            return True
+        # # horizontal
+        # if any([(y-i >= 0 and y-i+5 <= board_size and all(state[x, y-i:y-i+5] == player_id)) for i in range(5)]):
+        #     return True
+        # # vertical
+        # elif any([(x-i >= 0 and x-i+5 <= board_size and all(state[x-i:x-i+5, y] == player_id)) for i in range(5)]):
+        #     return True
+        #
+        # # diagonal \
+        # elif any([[state[x - i + j][y - i + j]
+        #            for j in range(5) if 0 <= x - i + j <= board_size - 1 and 0 <= y - i + j <= board_size - 1]
+        #           == [player_id]*5 for i in range(5)]):
+        #     return True
+        #
+        # # diagonal /
+        # elif any([[state[x - i + j][y + i - j]
+        #            for j in range(5) if 0 <= x - i + j <= board_size - 1 and 0 <= y + i - j <= board_size - 1]
+        #           == [player_id]*5 for i in range(5)]):
+        #     return True
+        # else:
+        #     return False
 
-        # diagonal \
-        elif any([[state[x - i + j][y - i + j]
-                   for j in range(5) if 0 <= x - i + j <= board_size - 1 and 0 <= y - i + j <= board_size - 1]
-                  == [player_id]*5 for i in range(5)]):
-            return True
+        end_row = len(state)
+        color = state[x][y]
+        n = 5
 
-        # diagonal /
-        elif any([[state[x - i + j][y + i - j]
-                   for j in range(5) if 0 <= x - i + j <= board_size - 1 and 0 <= y + i - j <= board_size - 1]
-                  == [player_id]*5 for i in range(5)]):
-            return True
-        else:
+        def check(values):
+            counter = 0
+            for value in values:
+                if value == color:
+                    counter += 1
+                else:
+                    counter = 0
+                if counter == n:
+                    return True
             return False
+
+        return (check([state[i][y] for i in range(max(0, x - n + 1), min(end_row, x + n))])
+                or check([state[x][i] for i in range(max(0, y - n + 1), min(end_row, y + n))])
+                or check([state[x+i][y+i] for i in range(max(-x, -y, 1 - n), min(end_row - x, end_row - y, n))])
+                or check([state[x+i][y-i] for i in range(max(-x, y - end_row + 1, 1 - n), min(end_row - x, y + 1, n))]))
