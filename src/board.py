@@ -67,24 +67,24 @@ class Board(object):
 
         x, y = action
         # horizontal
-        if any([(y-i >= 0 and y-i+5 <= board_size and np.all(state[x, y - i:y - i + 5] == player_id))
+        if any([(y-i >= 0 and y-i+5 <= board_size and all(state[x, y - i:y - i + 5] == player_id))
                 for i in range(5)]):
             return True
         # vertical
-        elif any([(x-i >= 0 and x-i+5 <= board_size and np.all(state[x - i:x - i + 5, y] == player_id))
+        elif any([(x-i >= 0 and x-i+5 <= board_size and all(state[x - i:x - i + 5, y] == player_id))
                   for i in range(5)]):
             return True
 
         # diagonal \
-        elif any([set([state[x - i + j][y - i + j]
-                       if 0 <= x - i + j <= board_size - 1 and 0 <= y - i + j <= board_size - 1
-                       else False for j in range(5)]) == {player_id} for i in range(5)]):
+        elif any([[state[x - i + j][y - i + j]
+                   for j in range(5) if 0 <= x - i + j <= board_size - 1 and 0 <= y - i + j <= board_size - 1]
+                  == [player_id]*5 for i in range(5)]):
             return True
 
         # diagonal /
-        elif any([set([state[x - i + j][y + i - j]
-                       if 0 <= x - i + j <= board_size - 1 and 0 <= y + i - j <= board_size - 1
-                       else False for j in range(5)]) == {player_id} for i in range(5)]):
+        elif any([[state[x - i + j][y + i - j]
+                   for j in range(5) if 0 <= x - i + j <= board_size - 1 and 0 <= y + i - j <= board_size - 1]
+                  == [player_id]*5 for i in range(5)]):
             return True
         else:
             return False

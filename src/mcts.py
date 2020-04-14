@@ -43,6 +43,7 @@ class Node(object):
 
         next_player_id = switch_player(self.player_id)
 
+        # TODO: list comprehension
         for action, P in probs:
             self.children[action] = Node(self, P, action, next_player_id)
 
