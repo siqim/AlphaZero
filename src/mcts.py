@@ -9,9 +9,10 @@ Created on 2020/4/5
 
 import time
 from collections import deque
-from utils import switch_player, idx_2_loc, change_sampling_strategy
+from utils import switch_player, change_sampling_strategy
 import numpy as np
 from board import Board
+from math import sqrt
 
 
 class Node(object):
@@ -47,7 +48,7 @@ class Node(object):
 
     @staticmethod
     def calc_ucb(node, c_puct):
-        U = c_puct * node.P * np.sqrt(node.parent.N) / (1 + node.N)
+        U = c_puct * node.P * sqrt(node.parent.N) / (1 + node.N)
         return node.Q + U
 
     @staticmethod
@@ -233,3 +234,4 @@ if __name__ == '__main__':
 
         tok = time.time()
         print(num_games, tok-tik, num_moves)
+        break
