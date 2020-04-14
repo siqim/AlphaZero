@@ -7,27 +7,29 @@ Created on 2020/4/5
 """
 
 
+import random
 import time
 from collections import deque
-from utils import switch_player, idx_2_loc, change_sampling_strategy
+from utils import switch_player, idx_2_loc
 import numpy as np
 from board import Board
+from math import sqrt
 
 
 class Node(object):
 
-    def __init__(self, parent_node, P, action, player_id):
+    def __init__(self, parent_node, p, action, player_id):
         """Class for representing nodes in the monte carlo tree.
 
         :param parent_node: an instance of the Node class, which is the parent of the current node
-        :param P: prior probs for the current node
+        :param p: prior probs for the current node
         :param player_id: the player who is gonna play based on the current state
         """
         # one node is associated with one state, but storing each state is too costly, so we don't store the state here.
         self.parent = parent_node
         self.children = {}
 
-        self.P = P
+        self.p = p
         self.N = 0
         self.Q = 0
         self.action = action  # the action that leads to this node
@@ -42,12 +44,12 @@ class Node(object):
 
         next_player_id = switch_player(self.player_id)
 
-        for action, P in probs.items():
-            self.children[action] = Node(self, P, action, next_player_id)
+        for action, p in probs.items():
+            self.children[action] = Node(self, p, action, next_player_id)
 
     @staticmethod
     def calc_ucb(node, c_puct):
-        U = c_puct * node.P * np.sqrt(node.parent.N) / (1 + node.N)
+        U = c_puct * node.p * sqrt(node.parent.N) / (1 + node.N)
         return node.Q + U
 
     @staticmethod
@@ -94,25 +96,24 @@ class MCTS(object):
     def get_one_move_by_simulations(self, node, state, num_simulations):
         for _ in range(num_simulations):
             self.search(action=None, start_node=node, start_state=state)
-
-        action, next_node = self.sample_actions(node)
-        return action, next_node  # the action will lead to the next_node, that is, the next state
+        action, next_node, pi = self.sample_actions(node)
+        return action, next_node, pi  # the action will lead to the next_node, that is, the next state
 
     def sample_actions(self, node):
-        actions, child_nodes = zip(*node.children.items())
-        Ns = [child_node.N for child_node in child_nodes]
+
+        Ns = {action: child_node.N for action, child_node in node.children.items()}
+        sum_N = sum(Ns.values())
+        pi = {action: N/sum_N for action, N in Ns.items()}
 
         if self.strategy == 'deterministically':
-            idx = np.argmax(Ns)
+            action = max(pi, key=pi.get)
         elif self.strategy == 'stochastically':
-            idx = np.random.choice(a=range(len(actions)), p=[N / sum(Ns) for N in Ns])
+            action = random.choices(list(pi.keys()), weights=pi.values(), k=1)[0]
         else:
             raise ValueError('Unknown value!!!')
 
-        action = actions[idx]
-        next_node = child_nodes[idx]
-
-        return action, next_node
+        next_node = node.children[action]
+        return action, next_node, pi
 
     def get_probs_and_v(self, state):
         """Given the current state, return prior prob for each valid action and v for the current state.
@@ -160,6 +161,13 @@ class MCTS(object):
         return best_action, best_child_node, best_state
 
 
+def change_sampling_strategy(mcts, strategy_change_point, num_moves):
+    if num_moves <= strategy_change_point:
+        mcts.strategy = 'stochastically'
+    else:
+        mcts.strategy = 'deterministically'
+
+
 def collect_self_play_data(player_id, state, history_buffer_black, history_buffer_white):
 
     # 1 for black 2 for white
@@ -177,11 +185,7 @@ def collect_self_play_data(player_id, state, history_buffer_black, history_buffe
         history_buffer_white.append(white_plane)
 
     x = np.stack((*history_buffer_black, *history_buffer_white, player_indicator))
-    p = None
-    v = None
-    return x, (p, v)
-
-
+    return x
 
 
 if __name__ == '__main__':
@@ -204,7 +208,7 @@ if __name__ == '__main__':
 
         tik = time.time()
 
-        node = Node(parent_node=None, P=None, action=None, player_id=player_id)
+        node = Node(parent_node=None, p=None, action=None, player_id=player_id)
         state = board.init_state
 
         history_buffer_black = deque(maxlen=history_buffer_len_per_player)
@@ -217,9 +221,9 @@ if __name__ == '__main__':
         num_moves = 0
         while 1:
 
-            action, node = mcts.get_one_move_by_simulations(node, state, num_simulations)
+            action, node, pi = mcts.get_one_move_by_simulations(node, state, num_simulations)
 
-            x, y = collect_self_play_data(player_id, state, history_buffer_black, history_buffer_white)
+            x = collect_self_play_data(player_id, state, history_buffer_black, history_buffer_white)
 
             state = Board.get_new_state(state, action, player_id)
             num_moves += 1
@@ -237,3 +241,4 @@ if __name__ == '__main__':
 
         tok = time.time()
         print(num_games, tok-tik, num_moves)
+        break
