@@ -7,14 +7,25 @@ Created on 2020/4/5
 """
 
 
+import torch
 import random
 import time
 from collections import deque
 from utils import switch_player
+from model import Model
 
 import numpy as np
 from board import Board
 from math import sqrt
+
+in_channels = 3
+board_size = 11
+batch_size = 1
+num_filters = 128
+num_blocks = 5
+model = Model(in_channels, num_filters=num_filters, num_blocks=num_blocks, board_size=board_size)
+model.cuda()
+model.eval()
 
 
 class Node(object):
@@ -79,7 +90,8 @@ class MCTS(object):
             return -v
 
         if Node.is_leaf_node(start_node):
-            probs, v = self.get_probs_and_v(start_state)
+            with torch.no_grad():
+                probs, v = self.get_probs_and_v(start_state)
             start_node.expand(probs)
             return -v
 
@@ -124,8 +136,12 @@ class MCTS(object):
 
         # tell if we are gonna use neural net to get probs and v
         if self.use_nn:
-            probs = np.random.dirichlet([self.board_size**2]*self.board_size**2)
-            v = np.random.uniform(-1, 1, 1).item()
+            dummy_input = torch.from_numpy(
+                np.random.random((batch_size, in_channels, board_size, board_size)).astype(np.float32)
+            ).cuda()
+            probs, v = model(dummy_input)
+            probs = probs.cpu().numpy().squeeze()
+            v = v.item()
         else:
             probs = np.random.dirichlet([self.board_size**2]*self.board_size**2)
             v = np.random.uniform(-1, 1, 1).item()
@@ -186,9 +202,7 @@ if __name__ == '__main__':
 
     strategy_change_point = 10
     history_buffer_len_per_player = 8
-
-    num_simulations = 400
-    board_size = 11
+    num_simulations = 200
     player_id = 1  # 1 for black 2 for white
     max_moves = board_size**2
     max_games = 25000

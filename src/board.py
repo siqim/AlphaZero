@@ -88,13 +88,12 @@ class Board(object):
         #     return False
 
         end_row = len(state)
-        color = state[x][y]
         n = 5
 
         def check(values):
             counter = 0
             for value in values:
-                if value == color:
+                if value == player_id:
                     counter += 1
                 else:
                     counter = 0

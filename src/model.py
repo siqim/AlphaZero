@@ -7,6 +7,7 @@ Created on 2020/4/5
 """
 
 
+import time
 import numpy as np
 import torch
 import torch.nn as nn
@@ -100,17 +101,26 @@ class Model(nn.Module):
 if __name__ == '__main__':
     writer = SummaryWriter('../logs/model_test_0')
 
-    in_channels = 17
+    in_channels = 3
     board_size = 15
-    batch_size = 32
+    batch_size = 512
     num_filters = 128
-    num_blocks = 9
+    num_blocks = 5
 
     dummy_input = np.random.random((batch_size, in_channels, board_size, board_size)).astype(np.float32)
-    dummy_input = torch.from_numpy(dummy_input)
+    dummy_input = torch.from_numpy(dummy_input).cuda()
 
     model = Model(in_channels, num_filters=num_filters, num_blocks=num_blocks)
-    probs, v = model(dummy_input)
+    model.eval()
+    model.cuda()
+    cnt = 0
+    while cnt <= 100:
+        with torch.no_grad():
+            tik = time.time()
+            probs, v = model(dummy_input)
+            tok = time.time()
+            print(tok-tik)
+            cnt += 1
 
     pytorch_total_params = sum(p.numel() for p in model.parameters())
     print(pytorch_total_params)
