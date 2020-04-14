@@ -4,8 +4,8 @@ target/
 
 # Log file
 *.log
-logs/*
-models/*
+logs/
+models/
 __pycache__/*
 
 # BlueJ files
