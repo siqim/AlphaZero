@@ -10,7 +10,8 @@ Created on 2020/4/5
 import random
 import time
 from collections import deque
-from utils import switch_player, idx_2_loc
+from utils import switch_player
+
 import numpy as np
 from board import Board
 from math import sqrt
@@ -44,12 +45,13 @@ class Node(object):
 
         next_player_id = switch_player(self.player_id)
 
-        for action, p in probs.items():
+        # TODO: list comprehension
+        for action, p in probs:
             self.children[action] = Node(self, p, action, next_player_id)
 
     @staticmethod
     def calc_ucb(node, c_puct):
-        U = c_puct * node.p * sqrt(node.parent.N) / (1 + node.N)
+        U = c_puct * node.P * sqrt(node.parent.N) / (1 + node.N)
         return node.Q + U
 
     @staticmethod
@@ -121,7 +123,7 @@ class MCTS(object):
         :param state: the current states
         :return:
         """
-        valid_actions = np.argwhere(state == 0)
+        valid_actions = np.argwhere(state.reshape(-1) == 0).squeeze()
 
         # tell if we are gonna use neural net to get probs and v
         if self.use_nn:
@@ -134,14 +136,12 @@ class MCTS(object):
         # tell if we are gonna add dirichlet noise every time we expand a leaf node in order to enhance exploration
         if self.add_noise:
             noise = np.random.dirichlet([self.alpha]*self.board_size**2)
-            probs_dict = {idx_2_loc(idx, self.board_size):
-                          (1 - self.eps) * prob + self.eps * noise[idx]
-                          for idx, prob in enumerate(probs)}
+            probs_dict = [(action, (1 - self.eps) * probs[action] + self.eps * noise[action])
+                          for action in valid_actions]
+
         else:
-            probs_dict = {idx_2_loc(idx, self.board_size): prob for idx, prob in enumerate(probs)}
-
-        probs_dict = {tuple(valid_action): probs_dict[tuple(valid_action)] for valid_action in valid_actions}
-
+            probs_dict = [(action, probs[action])
+                          for action in valid_actions]
         return probs_dict, v
 
     def choose_max_ucb_move(self, start_node, start_state):
@@ -191,7 +191,7 @@ def collect_self_play_data(player_id, state, history_buffer_black, history_buffe
 if __name__ == '__main__':
 
     strategy_change_point = 10
-    history_buffer_len_per_player = 7
+    history_buffer_len_per_player = 8
 
     num_simulations = 400
     board_size = 11
