@@ -12,7 +12,7 @@ from collections import deque
 from utils import switch_player, idx_2_loc, change_sampling_strategy
 import numpy as np
 from board import Board
-
+import torchvision.models
 
 class Node(object):
 
@@ -182,12 +182,10 @@ def collect_self_play_data(player_id, state, history_buffer_black, history_buffe
     return x, (p, v)
 
 
-
-
 if __name__ == '__main__':
 
     strategy_change_point = 10
-    history_buffer_len_per_player = 7
+    history_buffer_len_per_player = 8
 
     num_simulations = 400
     board_size = 11

@@ -21,7 +21,7 @@ class GUI(object):
 
     def __init__(self, board_size=11):
         pygame.init()
-        icon = pygame.image.load('../img/icon.jpg')
+        icon = pygame.image.load('../imgs/icon.jpg')
         pygame.display.set_icon(icon)
 
         self.board_size = board_size
