@@ -12,7 +12,7 @@ from collections import deque
 from utils import switch_player, idx_2_loc, change_sampling_strategy
 import numpy as np
 from board import Board
-import torchvision.models
+
 
 class Node(object):
 
@@ -42,7 +42,7 @@ class Node(object):
 
         next_player_id = switch_player(self.player_id)
 
-        for action, P in probs.items():
+        for action, P in probs:
             self.children[action] = Node(self, P, action, next_player_id)
 
     @staticmethod
@@ -120,7 +120,7 @@ class MCTS(object):
         :param state: the current states
         :return:
         """
-        valid_actions = np.argwhere(state == 0)
+        valid_actions = np.argwhere(state.reshape(-1) == 0).squeeze()
 
         # tell if we are gonna use neural net to get probs and v
         if self.use_nn:
@@ -133,14 +133,12 @@ class MCTS(object):
         # tell if we are gonna add dirichlet noise every time we expand a leaf node in order to enhance exploration
         if self.add_noise:
             noise = np.random.dirichlet([self.alpha]*self.board_size**2)
-            probs_dict = {idx_2_loc(idx, self.board_size):
-                          (1 - self.eps) * prob + self.eps * noise[idx]
-                          for idx, prob in enumerate(probs)}
+            probs_dict = [(action, (1 - self.eps) * probs[action] + self.eps * noise[action])
+                          for action in valid_actions]
+
         else:
-            probs_dict = {idx_2_loc(idx, self.board_size): prob for idx, prob in enumerate(probs)}
-
-        probs_dict = {tuple(valid_action): probs_dict[tuple(valid_action)] for valid_action in valid_actions}
-
+            probs_dict = [(action, probs[action])
+                          for action in valid_actions]
         return probs_dict, v
 
     def choose_max_ucb_move(self, start_node, start_state):

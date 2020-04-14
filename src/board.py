@@ -7,6 +7,7 @@ Created on 2020/4/4
 """
 
 import numpy as np
+from utils import idx_2_loc
 
 
 class Board(object):
@@ -38,6 +39,9 @@ class Board(object):
             state: the new state state
             winning_flag: true for wining; false for losing
         """
+        if isinstance(action, np.int64):
+            action = idx_2_loc(action, state.shape[0])
+
         assert state[action] == 0
         new_state = state.copy()
         new_state[action] = player_id
@@ -55,6 +59,9 @@ class Board(object):
         """
         if action is None:
             return False
+
+        if isinstance(action, np.int64):
+            action = idx_2_loc(action, board_size)
 
         player_id = state[action]
 
