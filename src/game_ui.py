@@ -19,7 +19,7 @@ import time
 
 class GUI(object):
 
-    def __init__(self, board_size=15):
+    def __init__(self, board_size=11):
         pygame.init()
         icon = pygame.image.load('../imgs/icon.jpg')
         pygame.display.set_icon(icon)
@@ -58,16 +58,16 @@ class GUI(object):
         self.areas['ResetScore'] = Rect(0, self.screen_size[1] - self.unit_size,
                                         self.unit_size * 2.5, self.unit_size)
 
-        self.areas['Restart'] = Rect(self.unit_size * 3.5, self.screen_size[1] - self.unit_size,
+        self.areas['Restart'] = Rect(self.unit_size * 2.6, self.screen_size[1] - self.unit_size,
                                      self.unit_size * 2.5, self.unit_size)
 
-        self.areas['Man vs Man'] = Rect(self.unit_size * 7, self.screen_size[1] - self.unit_size,
-                                        self.unit_size * 3, self.unit_size)
+        self.areas['Man vs Man'] = Rect(self.unit_size * 5.2, self.screen_size[1] - self.unit_size,
+                                        self.unit_size * 2.6, self.unit_size)
 
-        self.areas['Man vs AI'] = Rect(self.unit_size * 11, self.screen_size[1] - self.unit_size,
+        self.areas['Man vs AI'] = Rect(self.unit_size * 7.9, self.screen_size[1] - self.unit_size,
                                        self.unit_size * 2.5, self.unit_size)
 
-        self.areas['AI vs AI'] = Rect(self.unit_size * 14.5, self.screen_size[1] - self.unit_size,
+        self.areas['AI vs AI'] = Rect(self.unit_size * 10.5, self.screen_size[1] - self.unit_size,
                                       self.unit_size * 2.5, self.unit_size)
 
         self.areas['state'] = Rect(self.unit_size, self.unit_size, self.board_length, self.board_length)
@@ -332,7 +332,7 @@ def process_one_move(mode, click, player_id, ui, ai_first):
 
 
 def main():
-    board_size = 15
+    board_size = 11
     ui = GUI(board_size)
     player_id = 1
     ai_first = False

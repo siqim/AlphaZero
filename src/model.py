@@ -44,7 +44,7 @@ class BasicBlock(nn.Module):
 
 class Model(nn.Module):
 
-    def __init__(self, in_channels, num_filters=256, board_size=15, block=BasicBlock, num_blocks=19):
+    def __init__(self, in_channels, num_filters=256, board_size=11, block=BasicBlock, num_blocks=19):
         super(Model, self).__init__()
 
         self.in_channels = in_channels
@@ -101,31 +101,35 @@ class Model(nn.Module):
 if __name__ == '__main__':
     writer = SummaryWriter('../logs/model_test_0')
 
-    in_channels = 3
-    board_size = 15
-    batch_size = 512
+    in_channels = 5
+    board_size = 11
+    batch_size = 1024
     num_filters = 128
     num_blocks = 5
 
     dummy_input = np.random.random((batch_size, in_channels, board_size, board_size)).astype(np.float32)
-    dummy_input = torch.from_numpy(dummy_input).cuda()
+    dummy_input = torch.from_numpy(dummy_input)
 
-    model = Model(in_channels, num_filters=num_filters, num_blocks=num_blocks)
+    model = Model(in_channels, num_filters=num_filters, num_blocks=num_blocks, board_size=board_size)
     model.eval()
-    model.cuda()
     cnt = 0
-    while cnt <= 100:
+    accu_time = 0
+    while cnt <= 5:
         with torch.no_grad():
+            cnt += 1
             tik = time.time()
             probs, v = model(dummy_input)
             tok = time.time()
-            print(tok-tik)
-            cnt += 1
+            accu_time += tok - tik
+            # print(tok-tik)
+
+    print('time used per sample: {time}'.format(time=accu_time/cnt/batch_size))
+    print('time used totally: {time}'.format(time=accu_time))
 
     pytorch_total_params = sum(p.numel() for p in model.parameters())
-    print(pytorch_total_params)
+    print('num of weights: {weights}'.format(weights=pytorch_total_params))
 
-    torch.save(model.state_dict(), '../models/model.pth')
-
-    writer.add_graph(model, dummy_input)
-    writer.close()
+    # torch.save(model.state_dict(), '../models/model.pth')
+    #
+    # writer.add_graph(model, dummy_input)
+    # writer.close()

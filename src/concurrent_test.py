@@ -2,19 +2,28 @@ import threading
 import time
 from queue import Queue
 
+event = threading.Event()
+base_money = {str(i): i+1 for i in range(500)}
+q = Queue(len(base_money))
+price_dict = {}
+total_num = 0
+max_num = 5000
+
 
 # 生产方法
 def produce(product_name):
     global price_dict, total_num
     cnt = 1
     while True:
-        if total_num >= max_num:
-            break
+        # if total_num >= max_num:
+        #     raise KeyboardInterrupt
 
         if not q.full():
             product = product_name + '_' + str(cnt)
             q.put(product, block=True)
             event.wait()
+            if total_num >= max_num:
+                break
 
             while 1:
                 if product in price_dict:
@@ -44,6 +53,7 @@ def consume():
     global price_dict
     while True:
         if total_num >= max_num:
+            event.set()
             break
         if q.full():
 
@@ -58,20 +68,12 @@ def consume():
 
 if __name__ == '__main__':
 
-    event = threading.Event()
-    base_money = {str(i): i+1 for i in range(512)}
-    q = Queue(len(base_money))
-    price_dict = {}
-    total_num = 0
-    max_num = 30000
-
-    t1 = threading.Thread(target=consume, daemon=True)
-    t1.start()
-
+    t1 = threading.Thread(target=consume, daemon=True, name='consumer')
     t_list = [threading.Thread(target=produce, args=(key,), name='producer_{idx}'.format(idx=key), daemon=True)
               for key in base_money.keys()]
 
     tik = time.time()
+    t1.start()
     for t in t_list:
         t.start()
 
