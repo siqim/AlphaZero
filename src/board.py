@@ -39,7 +39,7 @@ class Board(object):
             state: the new state state
             winning_flag: true for wining; false for losing
         """
-        if isinstance(action, np.int64):
+        if isinstance(action, int):
             action = idx_2_loc(action, state.shape[0])
 
         assert state[action] == 0
@@ -60,7 +60,7 @@ class Board(object):
         if action is None:
             return False
 
-        if isinstance(action, np.int64):
+        if isinstance(action, int):
             action = idx_2_loc(action, board_size)
 
         player_id = state[action]

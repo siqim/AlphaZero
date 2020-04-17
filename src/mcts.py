@@ -14,7 +14,6 @@ from collections import deque
 from utils import switch_player
 from model import Model
 import threading
-from multiprocessing.pool import ThreadPool
 from multiprocessing import Pool, Queue
 
 import os
@@ -50,6 +49,7 @@ class Node(object):
 
         next_player_id = switch_player(self.player_id)
         for action, p in probs:
+            assert isinstance(action, int)
             self.children[action] = Node(self, p, next_player_id)
 
     @staticmethod
@@ -117,9 +117,9 @@ class MCTS(object):
         pi = np.array([Ns.get(action_idx, 0) / sum_N for action_idx in range(self.num_actions)])
 
         if self.strategy == 'deterministically':
-            action = np.argmax(pi)
+            action = np.argmax(pi).item()
         elif self.strategy == 'stochastically':
-            action = np.random.choice(range(self.num_actions), p=pi)
+            action = np.random.choice(range(self.num_actions), p=pi).item()
         else:
             raise ValueError('Unknown value!!!')
         next_node = node.children[action]
@@ -150,7 +150,7 @@ class MCTS(object):
             noise = np.random.dirichlet([self.alpha]*self.num_actions)
             probs = (1 - self.eps) * probs + self.eps * noise
 
-        probs_dict = [(action, probs[action]) for action in valid_actions]
+        probs_dict = [(action.item(), probs[action]) for action in valid_actions]
         return probs_dict, v
 
     def choose_max_ucb_move(self, start_node, start_state):
@@ -251,14 +251,10 @@ def self_play_multi_threads(num_games):
     t_list = [threading.Thread(target=self_play, name='thread_{idx}'.format(idx=idx), daemon=True, args=(num_games,))
               for idx in range(num_threads)]
 
-    tik = time.time()
     for t in t_list:
         t.start()
     for t in t_list:
         t.join()
-    print('asdasd')
-    tok = time.time()
-    print('test', (tok-tik)/num_games)
 
 
 if __name__ == '__main__':
@@ -277,7 +273,7 @@ if __name__ == '__main__':
     player_id = 1  # 1 for black 2 for white
     max_moves = board_size**2
     num_games = 0
-    max_games = 1
+    max_games = 4
     num_threads = 2
     num_processes = 2
     self_play_buffer_len = 5000
@@ -286,9 +282,11 @@ if __name__ == '__main__':
     board = Board(board_size)
     mcts = MCTS(board_size, use_nn=False)
 
-    pool = Pool(num_processes)
-    for i in range(num_processes):
-        pool.apply_async(func=self_play_multi_threads, args=(num_games,))
-
-    pool.close()
-    pool.join()
+    self_play_multi_threads(num_games)
+    #
+    # pool = Pool(num_processes)
+    # for i in range(num_processes):
+    #     pool.apply_async(func=self_play_multi_threads, args=(num_games,))
+    #
+    # pool.close()
+    # pool.join()

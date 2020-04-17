@@ -3,43 +3,42 @@ import time
 from queue import Queue
 
 event = threading.Event()
-base_money = {str(i): i+1 for i in range(500)}
+base_money = {str(i): i+1 for i in range(50)}
 q = Queue(len(base_money))
 price_dict = {}
 total_num = 0
 max_num = 5000
+lock = threading.Lock()
 
 
 # 生产方法
 def produce(product_name):
     global price_dict, total_num
     cnt = 1
-    while True:
-        # if total_num >= max_num:
-        #     raise KeyboardInterrupt
+    while 1:
 
-        if not q.full():
-            product = product_name + '_' + str(cnt)
-            q.put(product, block=True)
-            event.wait()
-            if total_num >= max_num:
+        product = product_name + '_' + str(cnt)
+        q.put(product, block=True)
+
+        while 1:
+            if product in price_dict or total_num >= max_num:
                 break
+            else:
+                time.sleep(0.00000000001)
 
-            while 1:
-                if product in price_dict:
-                    break
-                else:
-                    event.clear()
-                    event.wait()
+        if total_num >= max_num:
+            break
 
-            price = price_dict[product]
-            assert price == base_money[product_name] * cnt
-            del price_dict[product]
-            # print('---生产产品:%s---，---价格:%d---' % (product, price))
-            total_num += 1
-            cnt += 1
-            if total_num % 100 == 0:
-                print(total_num)
+        price = price_dict[product]
+        assert price == base_money[product_name] * cnt
+        del price_dict[product]
+
+        lock.acquire()
+        total_num += 1
+        lock.release()
+        cnt += 1
+        if total_num % 100 == 0:
+            print(total_num)
 
 
 def get_price(product_name):
@@ -53,17 +52,12 @@ def consume():
     global price_dict
     while True:
         if total_num >= max_num:
-            event.set()
             break
         if q.full():
-
             while not q.empty():
                 product = q.get(block=True)
                 price_dict[product] = get_price(product)
-            time.sleep(0.001)
-            event.set()
-        else:
-            event.clear()
+            time.sleep(0.01)
 
 
 if __name__ == '__main__':
@@ -71,7 +65,7 @@ if __name__ == '__main__':
     t1 = threading.Thread(target=consume, daemon=True, name='consumer')
     t_list = [threading.Thread(target=produce, args=(key,), name='producer_{idx}'.format(idx=key), daemon=True)
               for key in base_money.keys()]
-
+    print('start')
     tik = time.time()
     t1.start()
     for t in t_list:
@@ -81,4 +75,4 @@ if __name__ == '__main__':
         t.join()
     t1.join()
     tok = time.time()
-    print(tok - tik)
+    print((tok - tik)/total_num)
