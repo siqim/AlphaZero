@@ -15,6 +15,7 @@ from utils import switch_player
 from model import Model
 import threading
 from multiprocessing import Pool, Queue
+from UCB import ucb
 
 import os
 import numpy as np
@@ -52,9 +53,14 @@ class Node(object):
             self.children[action] = Node(self, p, next_player_id)
 
     @staticmethod
+    def temp(Q, c_puct, p, N_parent, N):
+        return Q + c_puct * p * sqrt(N_parent) / (1 + N)
+
+    @staticmethod
     def calc_ucb(node, c_puct):
-        U = c_puct * node.p * sqrt(node.parent.N) / (1 + node.N)
-        return node.Q + U
+        # U = c_puct * node.p * sqrt(node.parent.N) / (1 + node.N)
+        # return node.Q + U
+        return ucb(node.Q, c_puct, node.p, node.parent.N, node.N)
 
     @staticmethod
     def is_leaf_node(node):
