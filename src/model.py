@@ -103,15 +103,16 @@ if __name__ == '__main__':
 
     in_channels = 5
     board_size = 11
-    batch_size = 1024
+    batch_size = 512
     num_filters = 128
     num_blocks = 5
 
     dummy_input = np.random.random((batch_size, in_channels, board_size, board_size)).astype(np.float32)
-    dummy_input = torch.from_numpy(dummy_input)
+    dummy_input = torch.from_numpy(dummy_input).cuda()
 
     model = Model(in_channels, num_filters=num_filters, num_blocks=num_blocks, board_size=board_size)
     model.eval()
+    model.cuda()
     cnt = 0
     accu_time = 0
     while cnt <= 5:

@@ -5,6 +5,7 @@ target/
 # Log file
 *.log
 __pycache__/
+c_extension/
 
 # BlueJ files
 *.ctxt

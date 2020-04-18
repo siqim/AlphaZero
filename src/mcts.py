@@ -49,7 +49,6 @@ class Node(object):
 
         next_player_id = switch_player(self.player_id)
         for action, p in probs:
-            assert isinstance(action, int)
             self.children[action] = Node(self, p, next_player_id)
 
     @staticmethod
@@ -117,9 +116,9 @@ class MCTS(object):
         pi = np.array([Ns.get(action_idx, 0) / sum_N for action_idx in range(self.num_actions)])
 
         if self.strategy == 'deterministically':
-            action = np.argmax(pi).item()
+            action = np.argmax(pi)
         elif self.strategy == 'stochastically':
-            action = np.random.choice(range(self.num_actions), p=pi).item()
+            action = np.random.choice(range(self.num_actions), p=pi)
         else:
             raise ValueError('Unknown value!!!')
         next_node = node.children[action]
@@ -150,7 +149,7 @@ class MCTS(object):
             noise = np.random.dirichlet([self.alpha]*self.num_actions)
             probs = (1 - self.eps) * probs + self.eps * noise
 
-        probs_dict = [(action.item(), probs[action]) for action in valid_actions]
+        probs_dict = zip(valid_actions, probs[valid_actions])
         return probs_dict, v
 
     def choose_max_ucb_move(self, start_node, start_state):
@@ -269,20 +268,25 @@ if __name__ == '__main__':
 
     strategy_change_point = 10
     history_buffer_len_per_player = 2
-    num_simulations = 100
+    num_simulations = 400
     player_id = 1  # 1 for black 2 for white
     max_moves = board_size**2
     num_games = 0
-    max_games = 4
-    num_threads = 2
-    num_processes = 2
+    max_games = 2
+    num_threads = 1
+    num_processes = 1
     self_play_buffer_len = 5000
     self_play_buffer = Queue(maxsize=self_play_buffer_len)
 
     board = Board(board_size)
     mcts = MCTS(board_size, use_nn=False)
 
-    self_play_multi_threads(num_games)
+    tik = time.time()
+    # self_play_multi_threads(num_games)
+    self_play(num_games)
+    tok = time.time()
+    print((tok-tik)/max_games)
+
     #
     # pool = Pool(num_processes)
     # for i in range(num_processes):
