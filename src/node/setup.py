@@ -33,7 +33,7 @@ class GetPybindInclude(object):
 ext_modules = [
     Extension(
         'pynode',
-        ['./node.cpp'],
+        ['./helper_func.cpp'],
         include_dirs=[
             # Path to pybind11 headers
             GetPybindInclude(),

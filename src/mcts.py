@@ -15,13 +15,13 @@ from utils import switch_player
 from model import Model
 import threading
 from multiprocessing import Pool, Queue
-from UCB import ucb
-import c_extension
+
 
 import os
 import numpy as np
 from board import Board
 from math import sqrt
+import pynode
 
 
 # TODO: make this class pure C++
@@ -36,40 +36,29 @@ class Node(object):
         """
         # one node is associated with one state, but storing each state is too costly, so we don't store the state here.
         self.parent = parent_node
-        self.children = {}
+        self.child_nodes = []
+        self.actions = []
 
         self.p = p
         self.N = 0
         self.Q = 0
         self.player_id = player_id
 
-    def expand(self, probs):
-        """To expand a leaf node.
-
-        :param probs: a dict with prior prob for each action
-        :return:
-        """
-
+    def expand(self, actions, probs):
         next_player_id = switch_player(self.player_id)
-        for action, p in probs:
-            self.children[action] = Node(self, p, next_player_id)
-
-    @staticmethod
-    def temp(Q, c_puct, p, N_parent, N):
-        return Q + c_puct * p * sqrt(N_parent) / (1 + N)
+        self.actions = actions
+        self.child_nodes = [Node(self, probs[i], next_player_id) for i in range(len(probs))]
 
     @staticmethod
     def calc_ucb(node, c_puct):
-        # U = c_puct * node.p * sqrt(node.parent.N) / (1 + node.N)
-        # return node.Q + U
-        return Node.temp(node.Q, c_puct, node.p, node.parent.N, node.N)
+        return pynode.calc_ucb(node.Q, c_puct, node.p, node.parent.N, node.N)
 
     @staticmethod
     def is_leaf_node(node):
-        if node.children == {}:
-            return True
-        else:
+        if node.child_nodes:
             return False
+        else:
+            return True
 
 
 class MCTS(object):
@@ -94,8 +83,8 @@ class MCTS(object):
 
         if Node.is_leaf_node(start_node):
             with torch.no_grad():
-                probs, v = self.get_probs_and_v(start_state)
-            start_node.expand(probs)
+                actions, probs, v = self.get_probs_and_v(start_state)
+            start_node.expand(actions, probs)
             return -v
 
         best_action, best_child_node, best_state = self.choose_max_ucb_move(start_node, start_state)
@@ -119,17 +108,19 @@ class MCTS(object):
 
     def sample_actions(self, node):
 
-        Ns = {action: child_node.N for action, child_node in node.children.items()}
-        sum_N = sum(Ns.values())
-        pi = np.array([Ns.get(action_idx, 0) / sum_N for action_idx in range(self.num_actions)])
+        Ns = [child_node.N for child_node in node.child_nodes]
+        sum_N = sum(Ns)
+        pi = [N/sum_N for N in Ns]
 
         if self.strategy == 'deterministically':
-            action = np.argmax(pi)
+            idx = np.argmax(pi)
         elif self.strategy == 'stochastically':
-            action = np.random.choice(range(self.num_actions), p=pi)
+            idx = np.random.choice(range(len(pi)), p=pi)
         else:
             raise ValueError('Unknown value!!!')
-        next_node = node.children[action]
+
+        action = node.actions[idx]
+        next_node = node.child_nodes[idx]
         return action, next_node, pi
 
     def get_probs_and_v(self, state):
@@ -157,22 +148,15 @@ class MCTS(object):
             noise = np.random.dirichlet([self.alpha]*self.num_actions)
             probs = (1 - self.eps) * probs + self.eps * noise
 
-        probs_dict = zip(valid_actions, probs[valid_actions])
-        return probs_dict, v
+        return valid_actions, probs[valid_actions], v
 
     def choose_max_ucb_move(self, start_node, start_state):
 
-        best_U = -float('inf')
-        best_action = None
-        best_child_node = None
+        child_stats = [[child_node.Q, child_node.p, child_node.N] for child_node in start_node.child_nodes]
+        best_idx = pynode.get_max_ucb_child(self.c_puct, start_node.N, child_stats)
 
-        for action, child_node in start_node.children.items():
-            U = Node.calc_ucb(child_node, self.c_puct)
-            if U > best_U:
-                best_action = action
-                best_child_node = child_node
-                best_U = U
-
+        best_action = start_node.actions[best_idx]
+        best_child_node = start_node.child_nodes[best_idx]
         best_state = Board.get_new_state(start_state, best_action, start_node.player_id)
         return best_action, best_child_node, best_state
 
