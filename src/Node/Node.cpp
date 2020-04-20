@@ -70,11 +70,11 @@ int get_max_ucb_child(Node node, float c_puct) {
     return best_action;
 }
 
-void update_Q(Node &node, double v) {
+void update_Q(Node& node, double v) {
     node.Q = (node.Q * node.N + v) / (1.0 + node.N);
 }
 
-void update_N(Node &node) {
+void update_N(Node& node) {
     node.N++;
 }
 
@@ -88,7 +88,7 @@ bool is_leaf_node(Node node) {
 }
 
 
-PYBIND11_MODULE(c_extension, m) {
+PYBIND11_MODULE(node, m) {
     py::class_<Node>(m, "Node")
         .def(py::init<Node*, double, int, int>())
         .def_readwrite("p", &Node::p)
