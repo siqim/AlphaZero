@@ -7,4 +7,5 @@ The code is based on `Python 3.7.7` and you can create a virtual environment by 
 conda create -n AlphaZero python=3.7.7
 conda activate AlphaZero
 pip install -r ./requirements.txt
+pip install ./src/node
 ```

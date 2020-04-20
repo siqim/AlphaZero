@@ -56,18 +56,18 @@ double calc_ucb(Node node, float c_puct) {
 
 int get_max_ucb_child(Node node, float c_puct) {
     double best_U = -INFINITY;
-    int best_action = NULL;
+    int best_idx = NULL;
 
     size_t num_children = node.child_nodes.size();
     for (int i = 0; i < num_children; i++) {
         double U = calc_ucb(node.child_nodes[i], c_puct);
         if (U > best_U) {
             best_U = U;
-            best_action = node.actions[i];
+            best_idx = i;
         }
     }
 
-    return best_action;
+    return best_idx;
 }
 
 void update_Q(Node& node, double v) {
@@ -87,8 +87,12 @@ bool is_leaf_node(Node node) {
     }
 }
 
+void clear_parent_info(Node& node) {
+    delete node.parent;
+    node.parent = NULL;
+}
 
-PYBIND11_MODULE(node, m) {
+PYBIND11_MODULE(pynode, m) {
     py::class_<Node>(m, "Node")
         .def(py::init<Node*, double, int, int>())
         .def_readwrite("p", &Node::p)
@@ -104,6 +108,8 @@ PYBIND11_MODULE(node, m) {
     m.def("calc_ucb", &calc_ucb);
     m.def("update_Q", &update_Q);
     m.def("update_N", &update_N);
+    m.def("is_leaf_node", &is_leaf_node);
+    m.def("clear_parent_info", &clear_parent_info);
     m.def("get_max_ucb_child", &get_max_ucb_child);
 
 }
