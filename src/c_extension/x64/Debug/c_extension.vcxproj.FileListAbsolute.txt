@@ -1,0 +1,2 @@
+C:\Users\msq96\Desktop\AlphaZero\src\c_extension\x64\Debug\c_extension.pyd
+C:\Users\msq96\Desktop\AlphaZero\src\c_extension\x64\Debug\c_extension.pdb

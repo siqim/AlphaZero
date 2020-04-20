@@ -16,6 +16,7 @@ from model import Model
 import threading
 from multiprocessing import Pool, Queue
 from UCB import ucb
+import c_extension
 
 import os
 import numpy as np
@@ -23,6 +24,7 @@ from board import Board
 from math import sqrt
 
 
+# TODO: make this class pure C++
 class Node(object):
 
     def __init__(self, parent_node, p, player_id):
@@ -60,7 +62,7 @@ class Node(object):
     def calc_ucb(node, c_puct):
         # U = c_puct * node.p * sqrt(node.parent.N) / (1 + node.N)
         # return node.Q + U
-        return ucb(node.Q, c_puct, node.p, node.parent.N, node.N)
+        return Node.temp(node.Q, c_puct, node.p, node.parent.N, node.N)
 
     @staticmethod
     def is_leaf_node(node):
@@ -278,9 +280,8 @@ if __name__ == '__main__':
     player_id = 1  # 1 for black 2 for white
     max_moves = board_size**2
     num_games = 0
-    max_games = 2
+    max_games = 1
     num_threads = 1
-    num_processes = 1
     self_play_buffer_len = 5000
     self_play_buffer = Queue(maxsize=self_play_buffer_len)
 
@@ -288,15 +289,6 @@ if __name__ == '__main__':
     mcts = MCTS(board_size, use_nn=False)
 
     tik = time.time()
-    # self_play_multi_threads(num_games)
     self_play(num_games)
     tok = time.time()
     print((tok-tik)/max_games)
-
-    #
-    # pool = Pool(num_processes)
-    # for i in range(num_processes):
-    #     pool.apply_async(func=self_play_multi_threads, args=(num_games,))
-    #
-    # pool.close()
-    # pool.join()

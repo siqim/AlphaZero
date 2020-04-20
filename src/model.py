@@ -99,11 +99,11 @@ class Model(nn.Module):
 
 
 if __name__ == '__main__':
-    writer = SummaryWriter('../logs/model_test_0')
+    # writer = SummaryWriter('../logs/model_test_0')
 
     in_channels = 5
     board_size = 11
-    batch_size = 512
+    batch_size = 8192
     num_filters = 128
     num_blocks = 5
 
