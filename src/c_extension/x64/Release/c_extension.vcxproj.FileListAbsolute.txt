@@ -1,1 +1,0 @@
-C:\Users\msq96\Desktop\AlphaZero\src\c_extension\x64\Release\c_extension.pyd
