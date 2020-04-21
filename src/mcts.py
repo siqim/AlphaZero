@@ -171,17 +171,20 @@ def collect_self_play_data(player_id, state, history_buffer_black, history_buffe
     if player_id == 1:
         player_indicator = np.ones_like(state, dtype=np.float32)
 
-        black_plane = np.zeros_like(state, dtype=np.float32)
-        black_plane[state == 1] = 1
-        history_buffer_black.append(black_plane)
-    else:
-        player_indicator = np.zeros_like(state, dtype=np.float32)
-
+        # append last player's move
         white_plane = np.zeros_like(state, dtype=np.float32)
         white_plane[state == 2] = 1
         history_buffer_white.append(white_plane)
 
-    x = np.stack((*history_buffer_black, *history_buffer_white, player_indicator))
+    else:
+        player_indicator = np.zeros_like(state, dtype=np.float32)
+
+        # append last player's move
+        black_plane = np.zeros_like(state, dtype=np.float32)
+        black_plane[state == 1] = 1
+        history_buffer_black.append(black_plane)
+
+    x = np.stack((player_indicator, *history_buffer_white, *history_buffer_black))
     return x
 
 
@@ -248,6 +251,7 @@ def self_play_multi_threads(max_game_per_thread):
 
 
 if __name__ == '__main__':
+    batch_size = 1
 
     player_id = 1  # 1 for black 2 for white
     board_size = 11
@@ -264,7 +268,7 @@ if __name__ == '__main__':
     num_threads = 1
 
     model = Model(in_channels, num_filters=128, num_blocks=5, board_size=board_size)
-    model.cuda()
+    # model.cuda()
     model.eval()
 
     board = Board(board_size)
