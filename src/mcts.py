@@ -7,37 +7,33 @@ Created on 2020/4/5
 """
 
 
-import sys
 import torch
 import time
 from collections import deque
 from utils import switch_player
 from model import Model
 import threading
-from multiprocessing import Pool, Queue
+from multiprocessing import Queue
 
 
 import os
 import numpy as np
 from board import Board
-from math import sqrt
 import pynode
 
 
-# TODO: make this class pure C++
 class Node(object):
+    __slots__ = ('parent', 'p', 'player_id', 'N', 'Q', 'actions', 'child_nodes')
 
-    def __init__(self, parent_node, p, player_id):
+    def __init__(self, parent, p, player_id):
         """Class for representing nodes in the monte carlo tree.
 
-        :param parent_node: an instance of the Node class, which is the parent of the current node
+        :param parent: an instance of the Node class, which is the parent of the current node
         :param p: prior probs for the current node
         :param player_id: the player who is gonna play based on the current state
         """
         # one node is associated with one state, but storing each state is too costly, so we don't store the state here.
-        self.parent = parent_node
-        self.child_nodes = []
-        self.actions = []
+        self.parent = parent
 
         self.p = p
         self.N = 0
@@ -47,7 +43,7 @@ class Node(object):
     def expand(self, actions, probs):
         next_player_id = switch_player(self.player_id)
         self.actions = actions
-        self.child_nodes = [Node(self, probs[i], next_player_id) for i in range(len(probs))]
+        self.child_nodes = [Node(self, prob, next_player_id) for prob in probs]
 
     @staticmethod
     def calc_ucb(node, c_puct):
@@ -55,7 +51,7 @@ class Node(object):
 
     @staticmethod
     def is_leaf_node(node):
-        if node.child_nodes:
+        if hasattr(node, 'child_nodes'):
             return False
         else:
             return True
@@ -140,7 +136,8 @@ class MCTS(object):
             probs = probs.numpy().squeeze()
             v = v.item()
         else:
-            probs = np.random.dirichlet([self.num_actions]*self.num_actions)
+            # probs = np.random.dirichlet([self.num_actions]*self.num_actions)
+            probs = np.random.random(self.num_actions)
             v = np.random.uniform(-1, 1, 1).item()
 
         # tell if we are gonna add dirichlet noise every time we expand a leaf node in order to enhance exploration
@@ -200,7 +197,7 @@ def init_history_buffer(history_buffer_len_per_player, state):
 def self_play(num_games):
     while num_games < max_games:
         player_id = 1
-        node = Node(parent_node=None, p=None, player_id=player_id)
+        node = Node(parent=None, p=None, player_id=player_id)
         state = board.init_state
         history_buffer_black, history_buffer_white = init_history_buffer(history_buffer_len_per_player, state)
 
@@ -265,7 +262,7 @@ if __name__ == '__main__':
     max_moves = board_size**2
     num_games = 0
     max_games = 1
-    num_threads = 1
+    num_threads = 10
     self_play_buffer_len = 5000
     self_play_buffer = Queue(maxsize=self_play_buffer_len)
 
@@ -273,6 +270,6 @@ if __name__ == '__main__':
     mcts = MCTS(board_size, use_nn=False)
 
     tik = time.time()
-    self_play(num_games)
+    self_play_multi_threads(num_games)
     tok = time.time()
     print((tok-tik)/max_games)
