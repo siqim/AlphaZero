@@ -194,7 +194,8 @@ def init_history_buffer(history_buffer_len_per_player, state):
     return history_buffer_black, history_buffer_white
 
 
-def self_play(num_games):
+def self_play(max_games):
+    num_games = 0
     while num_games < max_games:
         player_id = 1
         node = Node(parent=None, p=None, player_id=player_id)
@@ -234,9 +235,10 @@ def self_play(num_games):
             player_id = switch_player(player_id)
 
 
-def self_play_multi_threads(num_games):
+def self_play_multi_threads(max_game_per_thread):
 
-    t_list = [threading.Thread(target=self_play, name='thread_{idx}'.format(idx=idx), daemon=True, args=(num_games,))
+    t_list = [threading.Thread(target=self_play, name='thread_{idx}'.format(idx=idx), daemon=True,
+                               args=(max_game_per_thread,))
               for idx in range(num_threads)]
 
     for t in t_list:
@@ -247,29 +249,33 @@ def self_play_multi_threads(num_games):
 
 if __name__ == '__main__':
 
-    in_channels = 5
-    board_size = 11
-    batch_size = 1
-    num_filters = 128
-    num_blocks = 5
-    model = Model(in_channels, num_filters=num_filters, num_blocks=num_blocks, board_size=board_size)
-    model.eval()
-
-    strategy_change_point = 10
-    history_buffer_len_per_player = 2
-    num_simulations = 400
     player_id = 1  # 1 for black 2 for white
+    board_size = 11
     max_moves = board_size**2
-    num_games = 0
-    max_games = 1
-    num_threads = 10
+    num_simulations = 400
+    strategy_change_point = 10
+
+    history_buffer_len_per_player = 2
+    in_channels = history_buffer_len_per_player * 2 + 1
     self_play_buffer_len = 5000
     self_play_buffer = Queue(maxsize=self_play_buffer_len)
 
+    max_game_per_thread = 1
+    num_threads = 1
+
+    model = Model(in_channels, num_filters=128, num_blocks=5, board_size=board_size)
+    model.cuda()
+    model.eval()
+
     board = Board(board_size)
-    mcts = MCTS(board_size, use_nn=False)
+    mcts = MCTS(board_size, use_nn=True)
 
     tik = time.time()
-    self_play_multi_threads(num_games)
+
+    if num_threads != 1:
+        self_play_multi_threads(max_game_per_thread)
+    else:
+        self_play(max_game_per_thread)
+
     tok = time.time()
-    print((tok-tik)/max_games)
+    print((tok-tik) / (max_game_per_thread * num_threads))
