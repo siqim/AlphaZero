@@ -13,7 +13,7 @@ from collections import deque
 from utils import switch_player
 from model import Model
 import threading
-from multiprocessing import Queue
+from queue import Queue
 
 
 import os
@@ -76,9 +76,8 @@ class MCTS(object):
             return -v
 
         if Node.is_leaf_node(start_node):
-            with torch.no_grad():
-                actions, probs, v = self.get_probs_and_v(start_state, start_node.player_id,
-                                                         history_buffer_black, history_buffer_white)
+            actions, probs, v = self.get_probs_and_v(start_state, start_node.player_id,
+                                                     history_buffer_black, history_buffer_white)
             start_node.expand(actions, probs)
             return -v
 
@@ -129,19 +128,26 @@ class MCTS(object):
         :param history_buffer_white: history states for black stones, not including the current state
         :return:
         """
+        global batch_res
         valid_actions = np.argwhere(state.reshape(-1) == 0).squeeze()
 
         # tell if we are gonna use neural net to get probs and v
         if self.use_nn:
             x = collect_self_play_data(player_id, state, history_buffer_black,
                                        history_buffer_white, update_buffer=False)
-            x = torch.from_numpy(x).unsqueeze(0).cuda()
-            probs, v = model(x)
-            probs = probs.cpu().numpy().squeeze()
+            idx = threading.current_thread().name
+            batch_buffer.put([idx, x], block=True)
+
+            while idx not in batch_res:
+                time.sleep(0.0001)
+
+            probs, v = batch_res[idx]
+            del batch_res[idx]
+
+            probs = probs.cpu().numpy()
             v = v.item()
 
         else:
-            # probs = np.random.dirichlet([self.num_actions]*self.num_actions)
             probs = np.random.random(self.num_actions)
             v = np.random.uniform(-1, 1, 1).item()
 
@@ -207,10 +213,10 @@ def init_history_buffer(history_buffer_len_per_player, state):
     return history_buffer_black, history_buffer_white
 
 
-def self_play(max_games):
-    num_games = 0
+def self_play(max_games, lock):
+    global num_games
     while num_games < max_games:
-        player_id = 1
+        player_id = 1  # 1 for black 2 for white
         node = Node(parent=None, p=None, player_id=player_id)
         state = board.init_state
         history_buffer_black, history_buffer_white = init_history_buffer(history_buffer_len_per_player, state)
@@ -218,6 +224,7 @@ def self_play(max_games):
         # self-play until we have a winner or the number of moves exceeds the max_moves
         num_moves = 0
         data_points = []
+        tik = time.time()
         while 1:
             action, node, pi = mcts.get_one_move_by_simulations(node, state, num_simulations,
                                                                 deepcopy(history_buffer_black),
@@ -227,15 +234,20 @@ def self_play(max_games):
 
             state = Board.get_new_state(state, action, player_id)
             num_moves += 1
-            print(os.getpid(), threading.current_thread().name, num_moves)
+            lock.acquire()
+            print(os.getpid(), threading.current_thread().name, num_moves, time.time() - tik)
+            tik = time.time()
+            lock.release()
 
             change_sampling_strategy(mcts, strategy_change_point, num_moves)
 
             if Board.has_won(action, state, board_size):
+                lock.acquire()
                 num_games += 1
                 print('{pid}, {thread_id}: {num} of games! Play {player_id} has won the game!'
                       .format(pid=os.getpid(), thread_id=threading.current_thread().name,
                               num=num_games, player_id=player_id))
+                lock.release()
 
                 for player_id_for_x, x, pi in data_points:
                     if player_id_for_x == player_id:
@@ -250,10 +262,10 @@ def self_play(max_games):
             player_id = switch_player(player_id)
 
 
-def self_play_multi_threads(max_game_per_thread):
+def self_play_multi_threads(max_games, lock):
 
     t_list = [threading.Thread(target=self_play, name='thread_{idx}'.format(idx=idx), daemon=True,
-                               args=(max_game_per_thread,))
+                               args=(max_games, lock))
               for idx in range(num_threads)]
 
     for t in t_list:
@@ -262,9 +274,24 @@ def self_play_multi_threads(max_game_per_thread):
         t.join()
 
 
+def batch_inference():
+    global num_games, batch_res
+
+    with torch.no_grad():
+        while 1:
+            if num_games >= max_games:
+                break
+            if batch_buffer.full():
+                data = [batch_buffer.get(block=True) for _ in range(batch_size)]
+                idx, x = list(zip(*data))
+                x = torch.from_numpy(np.stack(x)).cuda()
+                probs, v = model(x)
+                for i, id_ in enumerate(idx):
+                    batch_res[id_] = [probs[i], v[i]]
+
+
 if __name__ == '__main__':
 
-    player_id = 1  # 1 for black 2 for white
     board_size = 11
     max_moves = board_size**2
     num_simulations = 400
@@ -275,8 +302,14 @@ if __name__ == '__main__':
     self_play_buffer_len = 5000
     self_play_buffer = Queue(maxsize=self_play_buffer_len)
 
-    max_game_per_thread = 1
-    num_threads = 1
+    num_games = 0
+    max_games = 128
+    num_threads = 64
+    lock = threading.Lock()
+
+    batch_res = {}
+    batch_size = 32
+    batch_buffer = Queue(maxsize=batch_size)
 
     model = Model(in_channels, num_filters=128, num_blocks=5, board_size=board_size)
     model.cuda()
@@ -285,12 +318,16 @@ if __name__ == '__main__':
     board = Board(board_size)
     mcts = MCTS(board_size, use_nn=True)
 
+    batch_inference_thread = threading.Thread(target=batch_inference, daemon=True)
+
     tik = time.time()
 
+    batch_inference_thread.start()
     if num_threads != 1:
-        self_play_multi_threads(max_game_per_thread)
+        self_play_multi_threads(max_games, lock)
     else:
-        self_play(max_game_per_thread)
+        self_play(max_games, lock)
+    batch_inference_thread.join()
 
     tok = time.time()
-    print((tok-tik) / (max_game_per_thread * num_threads))
+    print((tok-tik) / max_games)
