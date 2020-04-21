@@ -17,6 +17,7 @@ from multiprocessing import Queue
 
 
 import os
+from copy import deepcopy
 import numpy as np
 from board import Board
 import pynode
@@ -46,10 +47,6 @@ class Node(object):
         self.child_nodes = [Node(self, prob, next_player_id) for prob in probs]
 
     @staticmethod
-    def calc_ucb(node, c_puct):
-        return pynode.calc_ucb(node.Q, c_puct, node.p, node.parent.N, node.N)
-
-    @staticmethod
     def is_leaf_node(node):
         if hasattr(node, 'child_nodes'):
             return False
@@ -72,29 +69,33 @@ class MCTS(object):
         self.alpha = alpha
         self.eps = eps
 
-    def search(self, action, start_node, start_state):
+    def search(self, action, start_node, start_state, history_buffer_black, history_buffer_white):
+        update_history_buffer(start_node.player_id, start_state, history_buffer_black, history_buffer_white)
         if Board.has_won(action, start_state, self.board_size):
             v = 1
             return -v
 
         if Node.is_leaf_node(start_node):
             with torch.no_grad():
-                actions, probs, v = self.get_probs_and_v(start_state)
+                actions, probs, v = self.get_probs_and_v(start_state, start_node.player_id,
+                                                         history_buffer_black, history_buffer_white)
             start_node.expand(actions, probs)
             return -v
 
         best_action, best_child_node, best_state = self.choose_max_ucb_move(start_node, start_state)
 
-        v = self.search(best_action, best_child_node, best_state)
+        v = self.search(best_action, best_child_node, best_state, history_buffer_black, history_buffer_white)
 
         start_node.Q = ((start_node.Q * start_node.N) + v) / (start_node.N + 1)
         best_child_node.N += 1
 
         return -v
 
-    def get_one_move_by_simulations(self, node, state, num_simulations):
+    def get_one_move_by_simulations(self, node, state, num_simulations, history_buffer_black, history_buffer_white):
         for _ in range(num_simulations):
-            self.search(action=None, start_node=node, start_state=state)
+            self.search(action=None, start_node=node, start_state=state,
+                        history_buffer_black=deepcopy(history_buffer_black),
+                        history_buffer_white=deepcopy(history_buffer_white))
         action, next_node, pi = self.sample_actions(node)
 
         # discard all other branches except the branch of the new node,
@@ -119,22 +120,26 @@ class MCTS(object):
         next_node = node.child_nodes[idx]
         return action, next_node, pi
 
-    def get_probs_and_v(self, state):
+    def get_probs_and_v(self, state, player_id, history_buffer_black, history_buffer_white):
         """Given the current state, return prior prob for each valid action and v for the current state.
 
-        :param state: the current states
+        :param state: the current state
+        :param player_id: the player who is gonna put the stone on the current state
+        :param history_buffer_black: history states for black stones, not including the current state
+        :param history_buffer_white: history states for black stones, not including the current state
         :return:
         """
         valid_actions = np.argwhere(state.reshape(-1) == 0).squeeze()
 
         # tell if we are gonna use neural net to get probs and v
         if self.use_nn:
-            dummy_input = torch.from_numpy(
-                np.random.random((batch_size, in_channels, board_size, board_size)).astype(np.float32)
-            )
-            probs, v = model(dummy_input)
-            probs = probs.numpy().squeeze()
+            x = collect_self_play_data(player_id, state, history_buffer_black,
+                                       history_buffer_white, update_buffer=False)
+            x = torch.from_numpy(x).unsqueeze(0).cuda()
+            probs, v = model(x)
+            probs = probs.cpu().numpy().squeeze()
             v = v.item()
+
         else:
             # probs = np.random.dirichlet([self.num_actions]*self.num_actions)
             probs = np.random.random(self.num_actions)
@@ -165,24 +170,29 @@ def change_sampling_strategy(mcts, strategy_change_point, num_moves):
         mcts.strategy = 'deterministically'
 
 
-def collect_self_play_data(player_id, state, history_buffer_black, history_buffer_white):
-
+def update_history_buffer(player_id, state, history_buffer_black, history_buffer_white):
     # 1 for black 2 for white
     if player_id == 1:
-        player_indicator = np.ones_like(state, dtype=np.float32)
-
         # append last player's move
         white_plane = np.zeros_like(state, dtype=np.float32)
         white_plane[state == 2] = 1
         history_buffer_white.append(white_plane)
-
     else:
-        player_indicator = np.zeros_like(state, dtype=np.float32)
-
         # append last player's move
         black_plane = np.zeros_like(state, dtype=np.float32)
         black_plane[state == 1] = 1
         history_buffer_black.append(black_plane)
+
+
+def collect_self_play_data(player_id, state, history_buffer_black, history_buffer_white, update_buffer=True):
+    if update_buffer:
+        update_history_buffer(player_id, state, history_buffer_black, history_buffer_white)
+
+    # 1 for black 2 for white
+    if player_id == 1:
+        player_indicator = np.ones_like(state, dtype=np.float32)
+    else:
+        player_indicator = np.zeros_like(state, dtype=np.float32)
 
     x = np.stack((player_indicator, *history_buffer_white, *history_buffer_black))
     return x
@@ -209,7 +219,9 @@ def self_play(max_games):
         num_moves = 0
         data_points = []
         while 1:
-            action, node, pi = mcts.get_one_move_by_simulations(node, state, num_simulations)
+            action, node, pi = mcts.get_one_move_by_simulations(node, state, num_simulations,
+                                                                deepcopy(history_buffer_black),
+                                                                deepcopy(history_buffer_white))
             x = collect_self_play_data(player_id, state, history_buffer_black, history_buffer_white)
             data_points.append([player_id, x, pi])
 
@@ -251,7 +263,6 @@ def self_play_multi_threads(max_game_per_thread):
 
 
 if __name__ == '__main__':
-    batch_size = 1
 
     player_id = 1  # 1 for black 2 for white
     board_size = 11
@@ -268,7 +279,7 @@ if __name__ == '__main__':
     num_threads = 1
 
     model = Model(in_channels, num_filters=128, num_blocks=5, board_size=board_size)
-    # model.cuda()
+    model.cuda()
     model.eval()
 
     board = Board(board_size)
