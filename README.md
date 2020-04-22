@@ -9,3 +9,8 @@ conda activate AlphaZero
 pip install -r ./requirements.txt
 pip install ./src/node
 ```
+
+In `./src/node`, we implemented some computational intensive parts in c++ and used pybind11 to access them in Python. In this way, the MCTS process gets much faster.
+
+# 3. TODO
+There are too many engineering details in implementing AlphaZero. We would come around to this project later... Hope within half a year...
