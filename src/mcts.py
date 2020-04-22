@@ -15,7 +15,8 @@ from model import Model
 import threading
 from queue import Queue
 
-
+import pickle
+import datetime
 import os
 from copy import deepcopy
 import numpy as np
@@ -106,17 +107,18 @@ class MCTS(object):
 
         Ns = [child_node.N for child_node in node.child_nodes]
         sum_N = sum(Ns)
-        pi = [N/sum_N for N in Ns]
+        pi = {node.actions[idx]: N/sum_N for idx, N in enumerate(Ns)}
 
         if self.strategy == 'deterministically':
-            idx = np.argmax(pi)
+            idx = np.argmax(list(pi.values()))
         elif self.strategy == 'stochastically':
-            idx = np.random.choice(range(len(pi)), p=pi)
+            idx = np.random.choice(range(len(pi)), p=list(pi.values()))
         else:
             raise ValueError('Unknown value!!!')
 
         action = node.actions[idx]
         next_node = node.child_nodes[idx]
+        pi = [pi.get(i, 0) for i in range(self.num_actions)]
         return action, next_node, pi
 
     def get_probs_and_v(self, state, player_id, history_buffer_black, history_buffer_white):
@@ -231,7 +233,6 @@ def self_play(max_games, lock):
                                                                 deepcopy(history_buffer_white))
             x = collect_self_play_data(player_id, state, history_buffer_black, history_buffer_white)
             data_points.append([player_id, x, pi])
-
             state = Board.get_new_state(state, action, player_id)
             num_moves += 1
             lock.acquire()
@@ -251,9 +252,9 @@ def self_play(max_games, lock):
 
                 for player_id_for_x, x, pi in data_points:
                     if player_id_for_x == player_id:
-                        self_play_buffer.put((x, pi, 1))
+                        self_play_buffer.put((x, pi, 1), block=True)
                     else:
-                        self_play_buffer.put((x, pi, -1))
+                        self_play_buffer.put((x, pi, -1), block=True)
 
                 break
             elif num_moves == max_moves:
@@ -281,13 +282,41 @@ def batch_inference():
         while 1:
             if num_games >= max_games:
                 break
+
             if batch_buffer.full():
-                data = [batch_buffer.get(block=True) for _ in range(batch_size)]
+                data = [batch_buffer.get(block=False) for _ in range(batch_size)]
                 idx, x = list(zip(*data))
                 x = torch.from_numpy(np.stack(x)).cuda()
+                load_model_event.wait()
                 probs, v = model(x)
                 for i, id_ in enumerate(idx):
                     batch_res[id_] = [probs[i], v[i]]
+
+            if self_play_buffer.full():
+                data = [self_play_buffer.get(block=False) for _ in range(self_play_buffer_len)]
+                file_name = '_'.join(['data', str(os.getpid()), datetime.datetime.now().strftime('%Y-%m-%d_%H-%M')])
+                with open(file_name, 'wb') as f:
+                    pickle.dump(data, f)
+
+
+def get_model():
+    # TODO: get new model according to the number of self-play games, rather than scan the folder
+    global current_model_name, model
+
+    while 1:
+        models = sorted([each for each in os.listdir('../models') if 'model_' in each])
+        if models:
+            newest_model_name = models[-1]
+            if current_model_name == newest_model_name:
+                time.sleep(60*10)
+            else:
+                load_model_event.clear()
+                state_dict = torch.load('../models/' + newest_model_name)
+                model.load_state_dict(state_dict)
+                current_model_name = newest_model_name
+                load_model_event.set()
+        else:
+            time.sleep(60*10)
 
 
 if __name__ == '__main__':
@@ -311,13 +340,17 @@ if __name__ == '__main__':
     batch_size = 32
     batch_buffer = Queue(maxsize=batch_size)
 
+    current_model_name = None
     model = Model(in_channels, num_filters=128, num_blocks=5, board_size=board_size)
     model.cuda()
     model.eval()
+    load_model_event = threading.Event()
+    load_model_event.set()
 
     board = Board(board_size)
     mcts = MCTS(board_size, use_nn=True)
 
+    model_scan_thread = threading.Thread(target=get_model, daemon=True)
     batch_inference_thread = threading.Thread(target=batch_inference, daemon=True)
 
     tik = time.time()

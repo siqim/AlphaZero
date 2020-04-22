@@ -130,7 +130,7 @@ if __name__ == '__main__':
     pytorch_total_params = sum(p.numel() for p in model.parameters())
     print('num of weights: {weights}'.format(weights=pytorch_total_params))
 
-    # torch.save(model.state_dict(), '../models/model.pth')
+    torch.save(model.state_dict(), '../models/model.pth')
     #
     # writer.add_graph(model, dummy_input)
     # writer.close()
