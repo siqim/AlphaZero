@@ -129,7 +129,7 @@ class MCTS(object):
         :return:
         """
         global batch_res
-        valid_actions = np.argwhere(state.reshape(-1) == 0).squeeze()
+        valid_actions = np.argwhere(state.reshape(-1) == 0).reshape(-1)
 
         # tell if we are gonna use neural net to get probs and v
         if self.use_nn:
@@ -303,7 +303,7 @@ if __name__ == '__main__':
     self_play_buffer = Queue(maxsize=self_play_buffer_len)
 
     num_games = 0
-    max_games = 128
+    max_games = 63
     num_threads = 64
     lock = threading.Lock()
 
@@ -321,7 +321,6 @@ if __name__ == '__main__':
     batch_inference_thread = threading.Thread(target=batch_inference, daemon=True)
 
     tik = time.time()
-
     batch_inference_thread.start()
     if num_threads != 1:
         self_play_multi_threads(max_games, lock)
