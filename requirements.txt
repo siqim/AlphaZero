@@ -1,5 +1,5 @@
 pygame==1.9.6
-numpy==1.18.2
+numpy==1.22.0
 torch==1.4.0
 tensorboard==2.2.0
 pybind11==2.5.0
